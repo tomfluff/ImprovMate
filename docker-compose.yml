@@ -1,0 +1,22 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    env_file:
+      - ./frontend/.env
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/app
+      - ./frontend/node_modules:/app/node_modules
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
+    ports:
+      - 8080:8080
+    volumes:
+      - ./backend:/app
