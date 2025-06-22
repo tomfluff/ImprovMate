@@ -98,6 +98,7 @@ const InstructionView = ({
                     size="compact-md"
                     onClick={() => newSession.mutate()}
                     disabled={session != null}
+                    loading={newSession.isPending}
                   >
                     {instructions[2]}
                   </Button>{" "}
