@@ -68,7 +68,7 @@ type InstructionsLang = {
 };
 
 export const instructionsLang: InstructionsLang = {
-  "en": [
+  en: [
     "Your Adventure Awaits",
     "1. Start a",
     "New Session",
@@ -93,33 +93,6 @@ export const instructionsLang: InstructionsLang = {
     "Ending!",
     "1. Try to conclude absurd stories!",
     "2. Be creative!",
-    "Start!"],
-
-  "it": [
-    "La tua avventura ti aspetta",
-    "1. Inizia una",
-    "Nuova Sessione",
-    "per configurare il sistema, e sentiti libero di modificare le impostazioni.",
-    "2. Scegli una modalità di gioco:",
-    "Disegna!",
-    "3. Carica e",
-    "Cattura il tuo disegno",
-    "per definire il contesto della tua storia.",
-    "4. Seleziona una",
-    "Premessa",
-    "per preparare il terreno alla tua storia.",
-    "Improvvisa!",
-    "3. Dialoghi e movimenti possono essere usati per descrivere il contesto.",
-    "4. Testa le tue abilità e ",
-    "Improvvisa",
-    "per iniziare la storia!",
-    "Tre cose che...!",
-    "1. Allena la tua reattività!",
-    "2. Devi sempre avere una risposta pronta!",
-    "Inizia!",
-    "Conclusioni!",
-    "1. Prova a concludere storie assurde!",
-    "2. Sii creativo!",
-    "Inizia!",
-  ]
-}
+    "Start!",
+  ],
+};

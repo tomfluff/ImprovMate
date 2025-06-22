@@ -2,20 +2,20 @@ import { TPremise } from "../types/Premise";
 import { Card, Loader, Spoiler, Text } from "@mantine/core";
 import ReadController from "./ReadController";
 import useTranslation from "../hooks/useTranslation";
-import { usePreferencesStore } from "../stores/preferencesStore";
 
 type Props = {
   premise: TPremise;
 };
 
 const PremiseCard = ({ premise }: Props) => {
+  if (!premise) return null;
+
   const { data: shorttext, isLoading: shorttextLoading } = useTranslation(
     premise.title
   );
   const { data: longtext, isLoading: longtextLoading } = useTranslation(
     premise.desc
   );
-  const language = usePreferencesStore.use.language();
 
   if (shorttextLoading || longtextLoading)
     return (
@@ -31,7 +31,7 @@ const PremiseCard = ({ premise }: Props) => {
           {shorttext}
         </Text>
       </Card.Section>
-      <Spoiler maxHeight={50} showLabel={language === "it" ? "Mostra di più" : "Show more"} hideLabel={language === "it" ? "Nascondi" : "Hide"}>
+      <Spoiler maxHeight={50} showLabel="Show more" hideLabel="Hide">
         {longtext}
       </Spoiler>
       <Card.Section p="xs">

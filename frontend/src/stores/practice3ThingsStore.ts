@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import { createSelectors } from "../utils/createSelectors";
 import { TStory, TStoryPart } from "../types/Story";
+import { randomId } from "@mantine/hooks";
 
 const initialState = {
   id: null as string | null,
@@ -25,6 +26,9 @@ export const usePractice3ThingsStore = createSelectors(
 
 export const clear3ThingsStore = () => {
   usePractice3ThingsStore.setState(initialState);
+  usePractice3ThingsStore.setState(() => {
+    return { id: randomId() };
+  });
 };
 
 export const startStory = (story: TStory) => {
@@ -34,7 +38,14 @@ export const startStory = (story: TStory) => {
       if (!story.parts[0].actions) {
         story.parts[0].actions = [];
       }
-      story.parts[0].actions[0] = { id: "0", title: "Improvise", desc: "Use your improvisation to progress the story!", active: true, used: false, isImprov: true };
+      story.parts[0].actions[0] = {
+        id: "0",
+        title: "Improvise",
+        desc: "Use your improvisation to progress the story!",
+        active: true,
+        used: false,
+        isImprov: true,
+      };
     }
     console.log("Practice3ThingsStore -> startStory - story:", story);
     return {
@@ -58,7 +69,7 @@ export const appendStory = (part: TStoryPart) => {
 
 export const printState = () => {
   console.log("Story state: ", usePractice3ThingsStore.getState());
-}
+};
 
 export const getLastStoryText = () => {
   const parts = usePractice3ThingsStore.getState().story?.parts;

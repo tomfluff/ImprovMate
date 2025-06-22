@@ -5,10 +5,10 @@ import { createSelectors } from "../utils/createSelectors";
 const initialState = {
   audioVolume: 1,
   audioSpeed: 1,
-  language: "en", //TODO: Change to "it" if needed
+  language: "en",
   autoReadStorySections: false,
   includeStoryImages: true,
-  storyComplexity: 3//TODO: max complexity
+  storyComplexity: 2,
 };
 
 export type TPreferences = typeof initialState;

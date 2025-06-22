@@ -27,10 +27,7 @@ import CharacterCard from "./components/CharacterCard";
 import { useMemo, useState } from "react";
 import PremiseCard from "./components/PremiseCard";
 import PreferenceModal from "./components/PreferenceModal/PreferenceModal";
-import {
-  resetPreferences,
-  usePreferencesStore,
-} from "./stores/preferencesStore";
+import { resetPreferences } from "./stores/preferencesStore";
 import AboutModal from "./components/AboutModal/AboutModal";
 import InstructionView from "./components/InstructionView";
 import PracticeEndingsView from "./components/PracticeEndingsView";
@@ -79,8 +76,6 @@ function App() {
     setTabControlsRefs(tabControlsRefs);
   };
 
-  const language = usePreferencesStore.use.language();
-
   return (
     <AppShell
       header={{ height: 60 }}
@@ -94,14 +89,8 @@ function App() {
     >
       <AppShell.Header p="md">
         <Flex justify="space-between" align="center" direction="row" h="100%">
-          <Tooltip label={"Istruzioni e altro"} position="right" withArrow>
+          <Tooltip label={"Instructions and more"} position="right" withArrow>
             <Group>
-              <Burger
-                opened={opened}
-                onClick={toggleNavbar}
-                // hiddenFrom="sm"
-                size="sm"
-              />
               <ActionIcon variant="default" size="xl" onClick={toggleNavbar}>
                 <FaQuestionCircle />
               </ActionIcon>
@@ -145,7 +134,7 @@ function App() {
                     color: tabValue === "1" ? "white" : undefined,
                   })}
                 >
-                  {language === "it" ? "Aiuto" : "Help"}
+                  Help
                 </Tabs.Tab>
                 <Tabs.Tab
                   value="2"
@@ -157,7 +146,7 @@ function App() {
                     color: tabValue === "2" ? "white" : undefined,
                   })}
                 >
-                  {language === "it" ? "Contesto" : "Context"}
+                  Context
                 </Tabs.Tab>
                 <Tabs.Tab
                   value="3"
@@ -169,7 +158,7 @@ function App() {
                     color: tabValue === "3" ? "white" : undefined,
                   })}
                 >
-                  {language === "it" ? "Punti Chiave" : "Keypoints"}
+                  Keypoints
                 </Tabs.Tab>
 
                 <FloatingIndicator
@@ -198,18 +187,13 @@ function App() {
                 <KeyPointsView />
               </Tabs.Panel>
             </Tabs>
+          )}{" "}
+          {isSession && gameMode === "practice" && isStartedEndings && (
+            <PracticeInstructionCard gameMode={"endings"} />
           )}
-
-          {isSession &&
-            (gameMode === "practice" || gameMode === "pratica") &&
-            isStartedEndings && (
-              <PracticeInstructionCard gameMode={"endings"} />
-            )}
-          {isSession &&
-            (gameMode === "practice" || gameMode === "pratica") &&
-            isStarted3Things && (
-              <PracticeInstructionCard gameMode={"threethings"} />
-            )}
+          {isSession && gameMode === "practice" && isStarted3Things && (
+            <PracticeInstructionCard gameMode={"threethings"} />
+          )}
         </AppShell.Section>
       </AppShell.Navbar>
       <AppShell.Main w={rem("99vw")}>
@@ -222,16 +206,15 @@ function App() {
               setIsStarted3Things={setIsStarted3Things}
             />
           )}
-        {isSession &&
-          isCharacter &&
-          isPremise &&
-          (gameMode === "story" || gameMode === "storia") && <StoryView />}
-        {isSession &&
-          (gameMode === "practice" || gameMode === "pratica") &&
-          isStartedEndings && <PracticeEndingsView reset={reset} />}
-        {isSession &&
-          (gameMode === "practice" || gameMode === "pratica") &&
-          isStarted3Things && <Practice3ThingsView />}
+        {isSession && isCharacter && isPremise && gameMode === "story" && (
+          <StoryView />
+        )}
+        {isSession && gameMode === "practice" && isStartedEndings && (
+          <PracticeEndingsView reset={reset} />
+        )}
+        {isSession && gameMode === "practice" && isStarted3Things && (
+          <Practice3ThingsView />
+        )}
       </AppShell.Main>
       <AppShell.Footer p="sm">
         <Flex w="100%" h="100%" justify="center" align="center" gap="sm">
@@ -254,7 +237,7 @@ function App() {
             >
               drgrico
             </Button>
-            and{" "}
+            {" "}and{" "}
             <Button
               component={Link}
               to="https://github.com/tomfluff"

@@ -45,6 +45,7 @@ llm = Storyteller(OPENAI_API_KEY, OPENAI_ORG_ID)
 def home():
     return jsonify({"message": "Hello, user! This is ImprovMate API!"})
 
+
 @app.route("/api")
 def index():
     # Return a json response representing the API, with the available endpoints
@@ -97,7 +98,7 @@ def image_save():
     os.makedirs(STORAGE_PATH, exist_ok=True)
     # Save the base64 image
     if logger:
-            logger.debug("Request in image_save:", request)
+        logger.debug("Request in image_save:", request)
     data = request.get_json()
 
     base64_url = data["image"]
@@ -252,16 +253,14 @@ def init_hints_gen():
         if logger:
             logger.debug(f"Data in end_hints_gen: {data}")
         complexity = data.get("context").get("complexity", None)
-        language = data.get("language", None)
         if logger:
-            logger.debug(f"Complexity: {complexity}, Language: {language}")
+            logger.debug(f"Complexity: {complexity}")
 
         result = llm.generate_init_hints(
             complexity,
-            language,
             HINTS_GEN_COUNT,
         )
-        
+
         if logger:
             logger.debug(f"Initial hints generated: {result}")
         return jsonify(
@@ -400,7 +399,15 @@ def actions_gen():
                 "desc": "Bring the story to an end and see what happens!",
             }
         )
-        actions = [{"id": uuid.uuid4(), **a, "active": True, "isImprov": a["title"] == "Improvise"} for a in actions]
+        actions = [
+            {
+                "id": uuid.uuid4(),
+                **a,
+                "active": True,
+                "isImprov": a["title"] == "Improvise",
+            }
+            for a in actions
+        ]
         if logger:
             logger.debug(f"Story actions generated: {actions}")
         return jsonify(
@@ -413,23 +420,23 @@ def actions_gen():
         if logger:
             logger.error(str(e))
         return jsonify({"error": str(e)}), 500
-    
-    
+
+
 @app.route("/api/story/motion", methods=["POST"])
-def process_motion(): 
+def process_motion():
     try:
         data = request.get_json()
         if not data:
             if logger:
                 logger.error("No data found in the request!")
             return jsonify(type="error", message="No data found!", status=400)
-        
+
         frames = data.get("frames", None)
         if not frames:
             if logger:
                 logger.error("No frames found in the request!")
             return jsonify(type="error", message="No frames found!", status=400)
-        
+
         story = data.get("story", None)
         if not story:
             if logger:
@@ -463,19 +470,15 @@ def speech_to_text():
             logger.debug(f"Data received by speech-to-text().")
 
         audio = data.get("audio")
-        language = data.get("language")
-        if not language:
-            if logger:
-                logger.error("No language found in the request!")
-            return jsonify(type="error", message="No language found!", status=400)
-        
         audio_data = base64.b64decode(audio.split(",")[1])
         audio_file = io.BytesIO(audio_data)
         audio_file.name = "audio.webm"
-        
-        result = llm.speech_to_text(audio_file, language)
-        
-        result_dict = result.to_dict() if hasattr(result, 'to_dict') else result.__dict__
+
+        result = llm.speech_to_text(audio_file)
+
+        result_dict = (
+            result.to_dict() if hasattr(result, "to_dict") else result.__dict__
+        )
 
         if logger:
             logger.debug(f"Speech to text: {result}")
@@ -490,9 +493,9 @@ def speech_to_text():
             logger.error(f"Error in stt: {str(e)} {result}")
         return jsonify({"error": str(e)}), 500
 
-    
+
 @app.route("/api/story/startingimprov", methods=["POST"])
-def starting_improv(): # TODO: SIMILAR TO PROCESS MOTION
+def starting_improv():  # TODO: SIMILAR TO PROCESS MOTION
     try:
         data = request.get_json()
         if not data:
@@ -502,13 +505,13 @@ def starting_improv(): # TODO: SIMILAR TO PROCESS MOTION
         if logger:
             logger.debug(f"Data received by starting_improv(): {data}")
             # logger.debug(f"Data received by starting_improv().")
-            
+
         frames = data.get("frames")
         if not frames:
             if logger:
                 logger.error("No frames found in the request!")
             return jsonify(type="error", message="No frames found!", status=400)
-       
+
         transcript = data.get("audioResult").get("data").get("text")
         # if not transcript:
         #     if logger:
@@ -518,10 +521,9 @@ def starting_improv(): # TODO: SIMILAR TO PROCESS MOTION
             logger.debug(f"Transcript received by starting_improv(): {transcript}")
 
         hints = data.get("hints")
-        language = data.get("language", None)
         end = data.get("end", False)
 
-        result = llm.process_improv_noctx(end, frames, hints, transcript, language)
+        result = llm.process_improv_noctx(end, frames, hints, transcript)
         result["transcript"] = transcript
         if logger:
             logger.debug(f"Starting improv result: {result}")
@@ -538,7 +540,7 @@ def starting_improv(): # TODO: SIMILAR TO PROCESS MOTION
 
 
 @app.route("/api/story/process_improv", methods=["POST"])
-def process_improv(): # TODO: SIMILAR TO starting_improv(frames, transcript) + motionpart_gen(context)
+def process_improv():  # TODO: SIMILAR TO starting_improv(frames, transcript) + motionpart_gen(context)
     try:
         data = request.get_json()
         if not data:
@@ -548,13 +550,13 @@ def process_improv(): # TODO: SIMILAR TO starting_improv(frames, transcript) + m
         if logger:
             # logger.debug(f"Data received by starting_improv(): {data}")
             logger.debug(f"Data received by starting_improv().")
-            
+
         frames = data.get("frames")
         if not frames:
             if logger:
                 logger.error("No frames found in the request!")
             return jsonify(type="error", message="No frames found!", status=400)
-       
+
         transcript = data.get("audioResult").get("data").get("text")
         # if not transcript:
         #     if logger:
@@ -562,7 +564,7 @@ def process_improv(): # TODO: SIMILAR TO starting_improv(frames, transcript) + m
         #     return jsonify(type="error", message="No transcript found!", status=400)
         if logger:
             logger.debug(f"Transcript received by starting_improv(): {transcript}")
-            
+
         story = data.get("story")
         if not story:
             if logger:
@@ -570,10 +572,9 @@ def process_improv(): # TODO: SIMILAR TO starting_improv(frames, transcript) + m
             return jsonify(type="error", message="No story found!", status=400)
 
         hints = data.get("hints")
-        language = data.get("language", None)
         end = data.get("end", False)
 
-        result = llm.process_improv_ctx(end, frames, story, hints, transcript, language)
+        result = llm.process_improv_ctx(end, frames, story, hints, transcript)
         result["transcript"] = transcript
         if logger:
             logger.debug(f"Process improv result: {result}")
@@ -587,8 +588,8 @@ def process_improv(): # TODO: SIMILAR TO starting_improv(frames, transcript) + m
         if logger:
             logger.error(f"Error in starting_improv: {str(e)}")
         return jsonify({"error": str(e)}), 500
-    
-    
+
+
 @app.route("/api/story/improvpart", methods=["POST"])
 def storypart_from_improv():
     try:
@@ -599,10 +600,10 @@ def storypart_from_improv():
             return jsonify(type="error", message="No data found!", status=400)
         if logger:
             logger.debug(f"Data received by motionpart_gen(): {data}")
-            
+
         complexity = data.get("complexity", None)
         context = data.get("context", None)
-        
+
         result = None
         retry_count = 0
         while result is None and retry_count < 3:
@@ -624,8 +625,8 @@ def storypart_from_improv():
         if logger:
             logger.error(str(e))
         return jsonify({"error": str(e)}), 500
-        
-    
+
+
 @app.route("/api/story/improvpremise", methods=["POST"])
 def premise_from_improv():
     try:
@@ -636,47 +637,48 @@ def premise_from_improv():
             return jsonify(type="error", message="No data found!", status=400)
         if logger:
             logger.debug(f"Data received by premise_from_improv(): {data}")
-        
+
         improv = data.get("improv")
         transcript = improv.get("data").get("transcript")
         # if not transcript:
         #     if logger:
         #         logger.error("No transcript found in the request!")
         #     return jsonify(type="error", message="No data found!", status=400)
-        
+
         desc = improv.get("data").get("description")
         if not desc:
             if logger:
                 logger.error("No description found in the request!")
             return jsonify(type="error", message="No data found!", status=400)
-        
+
         emot = improv.get("data").get("emotion")
         if not emot:
             if logger:
                 logger.error("No emotion found in the request!")
             return jsonify(type="error", message="No data found!", status=400)
-        
+
         keyw = improv.get("data").get("keywords")
         if not keyw:
             if logger:
                 logger.error("No keywords found in the request!")
             return jsonify(type="error", message="No data found!", status=400)
-        
-        motion = {"description": desc, "emotion": emot, "keywords": keyw}               
+
+        motion = {"description": desc, "emotion": emot, "keywords": keyw}
         if logger:
-            logger.debug(f"Transcript and motion received by premise_from_improv(): {transcript} {motion}")  
-    
+            logger.debug(
+                f"Transcript and motion received by premise_from_improv(): {transcript} {motion}"
+            )
+
         hints = data.get("hints")
-        language = data.get("language", None)
         end = data.get("end", False)
 
-        character = llm.generate_character_improv(transcript, motion, hints, language, end)    
+        character = llm.generate_character_improv(transcript, motion, hints, end)
         result = llm.generate_premise_improv(transcript, motion, character)
         result["character"] = character
         # image = llm.generate_character_image_improv(character)
         # result["image"] = image
         result["id"] = uuid.uuid4()
-        
+
         if logger:
             logger.debug(f"Premise and character generated: {result}")
         return jsonify(
@@ -705,19 +707,16 @@ def character_premise_from_improv():
         audio = data.get("audio").get("audio")
         if logger:
             logger.debug(f"Audio received by premise_from_improv(): {audio}")
-        language = data.get("audio").get("language")
-        if not language:
-            if logger:
-                logger.error("No language found in the request!")
-            return jsonify(type="error", message="No language found!", status=400)
-        
+
         audio_data = base64.b64decode(audio.split(",")[1])
         audio_file = io.BytesIO(audio_data)
         audio_file.name = "audio.webm"
-        
-        result = llm.speech_to_text(audio_file, language)
-        
-        result_dict = result.to_dict() if hasattr(result, 'to_dict') else result.__dict__
+
+        result = llm.speech_to_text(audio_file)
+
+        result_dict = (
+            result.to_dict() if hasattr(result, "to_dict") else result.__dict__
+        )
         if logger:
             logger.debug(f"Transcript: {result}")
 
@@ -726,9 +725,9 @@ def character_premise_from_improv():
         language = data.get("language", None)
         end = data.get("end", False)
 
-        result = llm.generate_character_premise_improv(result_dict, frames, hints, language, end)
+        result = llm.generate_character_premise_improv(result_dict, frames, hints, end)
         result["id"] = uuid.uuid4()
-        
+
         if logger:
             logger.debug(f"Premise and character generated: {result}")
         return jsonify(
@@ -757,19 +756,16 @@ def story_from_improv():
         audio = data.get("audio").get("audio")
         if logger:
             logger.debug(f"Audio received by premise_from_improv(): {audio}")
-        language = data.get("audio").get("language")
-        if not language:
-            if logger:
-                logger.error("No language found in the request!")
-            return jsonify(type="error", message="No language found!", status=400)
-        
+
         audio_data = base64.b64decode(audio.split(",")[1])
         audio_file = io.BytesIO(audio_data)
         audio_file.name = "audio.webm"
-        
-        result = llm.speech_to_text(audio_file, language)
-        
-        result_dict = result.to_dict() if hasattr(result, 'to_dict') else result.__dict__
+
+        result = llm.speech_to_text(audio_file)
+
+        result_dict = (
+            result.to_dict() if hasattr(result, "to_dict") else result.__dict__
+        )
         if logger:
             logger.debug(f"Transcript: {result}")
 
@@ -781,9 +777,11 @@ def story_from_improv():
         premise = data.get("premise")
         keypoint = data.get("keypoint")
 
-        result = llm.generate_story_improv(result_dict, frames, story, premise, keypoint, hints, language, end)
+        result = llm.generate_story_improv(
+            result_dict, frames, story, premise, keypoint, hints, end
+        )
         result["id"] = uuid.uuid4()
-        
+
         if logger:
             logger.debug(f"Story part generated: {result}")
         return jsonify(
@@ -796,7 +794,7 @@ def story_from_improv():
         if logger:
             logger.error(str(e))
         return jsonify({"error": str(e)}), 500
-    
+
 
 @app.route("/api/story/end_improv_all", methods=["POST"])
 def end_from_improv():
@@ -812,19 +810,16 @@ def end_from_improv():
         audio = data.get("audio").get("audio")
         if logger:
             logger.debug(f"Audio received by premise_from_improv(): {audio}")
-        language = data.get("audio").get("language")
-        if not language:
-            if logger:
-                logger.error("No language found in the request!")
-            return jsonify(type="error", message="No language found!", status=400)
-        
+
         audio_data = base64.b64decode(audio.split(",")[1])
         audio_file = io.BytesIO(audio_data)
         audio_file.name = "audio.webm"
-        
-        result = llm.speech_to_text(audio_file, language)
-        
-        result_dict = result.to_dict() if hasattr(result, 'to_dict') else result.__dict__
+
+        result = llm.speech_to_text(audio_file)
+
+        result_dict = (
+            result.to_dict() if hasattr(result, "to_dict") else result.__dict__
+        )
         if logger:
             logger.debug(f"Transcript: {result}")
 
@@ -838,11 +833,15 @@ def end_from_improv():
         exercise = data.get("exercise")
 
         if exercise:
-            result = llm.generate_ending_improv(result_dict, frames, story, premise, keypoint, hints, language, end)
-        else: 
-            result = llm.generate_ending_exercise_improv(result_dict, frames, story, hints, language, end)
+            result = llm.generate_ending_improv(
+                result_dict, frames, story, premise, keypoint, hints, end
+            )
+        else:
+            result = llm.generate_ending_exercise_improv(
+                result_dict, frames, story, hints, end
+            )
         result["id"] = uuid.uuid4()
-        
+
         if logger:
             logger.debug(f"Ending generated: {result}")
         return jsonify(
@@ -865,13 +864,13 @@ def gen_character_img():
             if logger:
                 logger.error("No data found in the request!")
             return jsonify(type="error", message="No data found!", status=400)
-        
+
         character = data.get("character")
         if not character:
             if logger:
                 logger.error("No character found in the request!")
             return jsonify(type="error", message="No data found!", status=400)
-        
+
         result = llm.generate_character_image_improv(character)
         if logger:
             logger.debug(f"Character image generated: {result}")
@@ -885,10 +884,10 @@ def gen_character_img():
         if logger:
             logger.error(str(e))
         return jsonify({"error": str(e)}), 500
-    
+
 
 @app.route("/api/story/image", methods=["POST"])
-def storyimage_gen(): #TODO: retry if error?
+def storyimage_gen():  # TODO: retry if error?
     try:
         data = request.get_json()
         if not data:
@@ -968,7 +967,7 @@ def end_hints_gen():
             language,
             HINTS_GEN_COUNT,
         )
-        
+
         if logger:
             logger.debug(f"Ending hints generated: {result}")
         return jsonify(
@@ -993,23 +992,23 @@ def end_story_improv():
             return jsonify(type="error", message="No data found!", status=400)
         if logger:
             logger.debug(f"Generating ending...")
-        
+
         improv = data.get("improv")
         if not improv:
             if logger:
                 logger.error("No improv found in the request!")
             return jsonify(type="error", message="No data found!", status=400)
-        
+
         story = data.get("story")
         if not story:
             if logger:
                 logger.error("No previous story part found in the request!")
             return jsonify(type="error", message="No data found!", status=400)
-        
+
         result = llm.terminate_story_improv(story, improv)
         if logger:
             logger.info(f"Ending generated!")
-            
+
         part_id = uuid.uuid4()
         part = result["part"]
         return jsonify(
@@ -1034,14 +1033,16 @@ def generate_questions():
             return jsonify(type="error", message="No data found!", status=400)
         if logger:
             logger.debug(f"Generating questions...")
-            
+
         max_q = data.get("maxQ", 20)
 
         result = llm.generate_questions(max_q)
         if logger:
             logger.info(f"Questions generated: {result}")
         story_id = uuid.uuid4()
-        parts = [{"id": uuid.uuid4(), **result["questions"][i]} for i in range(0, max_q)]
+        parts = [
+            {"id": uuid.uuid4(), **result["questions"][i]} for i in range(0, max_q)
+        ]
         if logger:
             logger.info(f"Parts: {parts}")
 
@@ -1103,11 +1104,13 @@ def translate_keypoints():
                 type="success",
                 message="No translation needed!",
                 status=200,
-                data={"text": text},
+                data={"text": keypoints},
             )
 
         if logger:
-            logger.debug(f"Translating keypoints from {src_lang} to {tgt_lang}: {keypoints}")
+            logger.debug(
+                f"Translating keypoints from {src_lang} to {tgt_lang}: {keypoints}"
+            )
         result = llm.translate_keypoints(keypoints, src_lang, tgt_lang)
         return jsonify(
             type="success",

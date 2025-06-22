@@ -1,12 +1,19 @@
-import { Card, Spoiler, Text, Image, rem, Loader, Skeleton } from "@mantine/core";
+import {
+  Card,
+  Spoiler,
+  Text,
+  Image,
+  rem,
+  Loader,
+  Skeleton,
+} from "@mantine/core";
 import { TCharacter } from "../types/Character";
 import { TImage } from "../types/Image";
 import ReadController from "./ReadController";
 import useTranslation from "../hooks/useTranslation";
-import { setCharacterImage } from '../stores/adventureStore';
+import { setCharacterImage } from "../stores/adventureStore";
 import { useQuery } from "@tanstack/react-query";
-import getAxiosInstance from '../utils/axiosInstance';
-import { usePreferencesStore } from "../stores/preferencesStore";
+import getAxiosInstance from "../utils/axiosInstance";
 
 type Props = {
   image: TImage;
@@ -20,7 +27,6 @@ const CharacterCard = ({ image, character }: Props) => {
   const { data: backstory, isLoading: backstoryLoading } = useTranslation(
     character.backstory
   );
-  const language = usePreferencesStore.use.language();
 
   const instance = getAxiosInstance();
   const { isLoading: imageLoading } = useQuery({
@@ -51,8 +57,11 @@ const CharacterCard = ({ image, character }: Props) => {
   return (
     <Card shadow="sm" my={8} padding="sm" radius="md" withBorder>
       <Card.Section mb="sm">
-        {image ? (<Image src={image.src} alt={image.content} height={rem(128)} />)
-          : (imageLoading && <Skeleton height={rem(128)} />)}
+        {image ? (
+          <Image src={image.src} alt={image.content} height={rem(128)} />
+        ) : (
+          imageLoading && <Skeleton height={rem(128)} />
+        )}
       </Card.Section>
       {fullname && (
         <Text size="lg" fw={500}>
@@ -60,7 +69,7 @@ const CharacterCard = ({ image, character }: Props) => {
         </Text>
       )}
       {backstory && (
-        <Spoiler maxHeight={100} showLabel={language === "it" ? "Mostra di più" : "Show more"} hideLabel={language === "it" ? "Nascondi" : "Hide"}>
+        <Spoiler maxHeight={100} showLabel="Show more" hideLabel="Hide">
           {backstory}
         </Spoiler>
       )}

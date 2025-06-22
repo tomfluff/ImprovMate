@@ -1,5 +1,5 @@
 # Select a base image that includes Python
-FROM python:3.10.12-slim
+FROM python:3.10-slim
 
 # Allow statements and log messages to immediately appear in the native logs
 ENV PYTHONUNBUFFERED True

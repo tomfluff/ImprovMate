@@ -13,7 +13,11 @@ import {
   Flex,
 } from "@mantine/core";
 import { useAdventureStore } from "../stores/adventureStore";
-import { initSession, instructionsLang, useSessionStore } from "../stores/sessionStore";
+import {
+  initSession,
+  instructionsLang,
+  useSessionStore,
+} from "../stores/sessionStore";
 import getAxiosInstance from "../utils/axiosInstance";
 import { useMutation } from "@tanstack/react-query";
 import { useDisclosure } from "@mantine/hooks";
@@ -21,20 +25,22 @@ import DrawingUploadModal from "./DrawingUploadModal";
 import PremiseSelectModal from "./PremiseSelectModal";
 import { useState } from "react";
 import StartImprovUploadModal from "./StartImprovUploadModal";
-import { usePreferencesStore } from "../stores/preferencesStore";
 
 type InstructionViewProps = {
   setGameMode: (mode: string) => void;
   setIsStartedEndings: (mode: boolean) => void;
   setIsStarted3Things: (mode: boolean) => void;
-}
+};
 
-const InstructionView = ({ setGameMode, setIsStartedEndings, setIsStarted3Things }: InstructionViewProps) => {
+const InstructionView = ({
+  setGameMode,
+  setIsStartedEndings,
+  setIsStarted3Things,
+}: InstructionViewProps) => {
   const instance = getAxiosInstance();
   const session = useSessionStore.use.id();
   const character = useAdventureStore.use.character();
   const premise = useAdventureStore.use.premise();
-  const language = usePreferencesStore.use.language();
 
   const [captureModal, { open: openCapture, close: closeCapture }] =
     useDisclosure();
@@ -45,7 +51,7 @@ const InstructionView = ({ setGameMode, setIsStartedEndings, setIsStarted3Things
 
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
 
-  const instructions = instructionsLang[language === 'it' ? 'it' : 'en'];
+  const instructions = instructionsLang["en"];
 
   const newSession = useMutation({
     mutationKey: ["session"],
@@ -63,13 +69,13 @@ const InstructionView = ({ setGameMode, setIsStartedEndings, setIsStarted3Things
       setSelectedMode(value);
 
       // Perform any action based on the selected value
-      console.log('Selected game mode:', value);
+      console.log("Selected game mode:", value);
     }
   };
 
   const handleStartEndings = () => {
     setIsStartedEndings(true);
-    console.log('Started endings:', true);
+    console.log("Started endings:", true);
   };
 
   return (
@@ -99,22 +105,16 @@ const InstructionView = ({ setGameMode, setIsStartedEndings, setIsStarted3Things
                 </Text>
               </Box>
 
-
               <Box opacity={session != null && !character ? 1 : 0.5}>
                 <Flex align="center">
-                  <Text mr="xs">
-                    {instructions[4]}</Text>
+                  <Text mr="xs">{instructions[4]}</Text>
                   <Select
                     m="xs"
                     placeholder="Game Mode"
-                    data={language === "it" ? [
-                      { value: 'storia', label: 'Storia' },
-                      { value: 'pratica', label: 'Pratica' },
-                    ] :
-                      [
-                        { value: 'story', label: 'Story' },
-                        { value: 'practice', label: 'Practice' },
-                      ]}
+                    data={[
+                      { value: "story", label: "Story" },
+                      { value: "practice", label: "Practice" },
+                    ]}
                     disabled={session == null || character != null}
                     value={selectedMode}
                     onChange={handleGameModeChange}
@@ -123,7 +123,7 @@ const InstructionView = ({ setGameMode, setIsStartedEndings, setIsStarted3Things
                 </Flex>
               </Box>
             </Stack>
-          </Paper>
+          </Paper>{" "}
           {(selectedMode == "story" || selectedMode == "storia") && (
             // <Grid>
             //   <Grid.Col span={6}>
@@ -180,9 +180,7 @@ const InstructionView = ({ setGameMode, setIsStartedEndings, setIsStarted3Things
                 </Stack>
                 <Stack>
                   <Box>
-                    <Text>
-                      {instructions[13]}
-                    </Text>
+                    <Text>{instructions[13]}</Text>
                   </Box>
 
                   <Box>
@@ -192,7 +190,11 @@ const InstructionView = ({ setGameMode, setIsStartedEndings, setIsStarted3Things
                         m="xs"
                         size="compact-md"
                         onClick={openImprov}
-                        disabled={character != null || premise != null || session == null}
+                        disabled={
+                          character != null ||
+                          premise != null ||
+                          session == null
+                        }
                       >
                         {instructions[15]}
                       </Button>{" "}
@@ -205,7 +207,7 @@ const InstructionView = ({ setGameMode, setIsStartedEndings, setIsStarted3Things
             //   </Grid.Col>
             // </Grid>
           )}
-          {(selectedMode == "practice" || selectedMode == "pratica") && (
+          {selectedMode == "practice" && (
             <Grid>
               <Grid.Col span={6}>
                 <Box opacity={session != null ? 1 : 0.5}>
@@ -218,18 +220,14 @@ const InstructionView = ({ setGameMode, setIsStartedEndings, setIsStarted3Things
                     </Stack>
                     <Stack>
                       <Box>
-                        <Text mb={rem(20)}>
-                          {instructions[18]}
-                        </Text>
-                        <Text mb={rem(20)}>
-                          {instructions[19]}
-                        </Text>
-                        <Box style={{ textAlign: 'center' }}>
+                        <Text mb={rem(20)}>{instructions[18]}</Text>
+                        <Text mb={rem(20)}>{instructions[19]}</Text>
+                        <Box style={{ textAlign: "center" }}>
                           <Button
                             m="xs"
                             size="compact-md"
                             onClick={() => setIsStarted3Things(true)} //TODO: change
-                          //TODO: add disabled?
+                            //TODO: add disabled?
                           >
                             {instructions[20]}
                           </Button>{" "}
@@ -250,18 +248,14 @@ const InstructionView = ({ setGameMode, setIsStartedEndings, setIsStarted3Things
                     </Stack>
                     <Stack>
                       <Box>
-                        <Text mb={rem(20)}>
-                          {instructions[22]}
-                        </Text>
-                        <Text mb={rem(20)}>
-                          {instructions[23]}
-                        </Text>
-                        <Box style={{ textAlign: 'center' }}>
+                        <Text mb={rem(20)}>{instructions[22]}</Text>
+                        <Text mb={rem(20)}>{instructions[23]}</Text>
+                        <Box style={{ textAlign: "center" }}>
                           <Button
                             m="xs"
                             size="compact-md"
                             onClick={handleStartEndings} //TODO: change
-                          //TODO: add disabled?
+                            //TODO: add disabled?
                           >
                             {instructions[24]}
                           </Button>{" "}

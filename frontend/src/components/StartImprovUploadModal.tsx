@@ -1,25 +1,40 @@
-import { Box, Button, Container, Dialog, Grid, Modal, Select, Stack, Text } from '@mantine/core'
-import { useRef, useState } from 'react'
-import useWebcam from '../hooks/useWebcam';
-import getAxiosInstance from '../utils/axiosInstance';
-import { useDisclosure, useInterval } from '@mantine/hooks';
-import Webcam from 'react-webcam';
-import { useMutation } from '@tanstack/react-query';
-import { setCharacterNoImage, setPremise } from '../stores/adventureStore';
-import { createCallLanguage } from '../utils/llmIntegration';
-import HintsModal from './HintsModal';
-import useMic from '../hooks/useMic';
-import { TPremise } from '../types/Premise';
-import { usePreferencesStore } from '../stores/preferencesStore';
+import {
+  Box,
+  Button,
+  Container,
+  Dialog,
+  Grid,
+  Modal,
+  Select,
+  Stack,
+  Text,
+} from "@mantine/core";
+import { useRef, useState } from "react";
+import useWebcam from "../hooks/useWebcam";
+import getAxiosInstance from "../utils/axiosInstance";
+import { useDisclosure, useInterval } from "@mantine/hooks";
+import Webcam from "react-webcam";
+import { useMutation } from "@tanstack/react-query";
+import { setCharacterNoImage, setPremise } from "../stores/adventureStore";
+import { createCallLanguage } from "../utils/llmIntegration";
+import HintsModal from "./HintsModal";
+import useMic from "../hooks/useMic";
+import { TPremise } from "../types/Premise";
+import { usePreferencesStore } from "../stores/preferencesStore";
 
 type Props = {
   display: boolean;
   finalAction: () => void;
-}
+};
 
 const StartImprovUploadModal = ({ display, finalAction }: Props) => {
   const { webcamRef, capture } = useWebcam();
-  const { setAudioChunks, audioChunks, start: startAudio, stop: stopAudio } = useMic();
+  const {
+    setAudioChunks,
+    audioChunks,
+    start: startAudio,
+    stop: stopAudio,
+  } = useMic();
   const [userDevices, setUserDevices] = useState<MediaDeviceInfo[]>([]);
   const [activeDevice, setActiveDevice] = useState<string | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -35,19 +50,25 @@ const StartImprovUploadModal = ({ display, finalAction }: Props) => {
   }, 300);
 
   const [hintsModal, { open: openHints, close: closeHints }] = useDisclosure();
-  const [selectedHints, setSelectedHints] = useState<{ [category: string]: string }>({});
-  const language = usePreferencesStore.use.language();
+  const [selectedHints, setSelectedHints] = useState<{
+    [category: string]: string;
+  }>({});
 
   const instance = getAxiosInstance();
 
   const handleUploadAll = useMutation({
     mutationKey: ["improv-upload-all"],
-    mutationFn: ({ audio, frames }: { audio: string, frames: string[] }) => {
+    mutationFn: ({ audio, frames }: { audio: string; frames: string[] }) => {
       // console.log("Improv in handleResult: ", improv);
       console.log("Selected hints in handleUploadAll: ", selectedHints);
 
       return instance
-        .post("/story/improv_all", { audio: createCallLanguage(audio), frames: frames, hints: selectedHints, end: false })
+        .post("/story/improv_all", {
+          audio: createCallLanguage(audio),
+          frames: frames,
+          hints: selectedHints,
+          end: false,
+        })
         .then((res) => res.data.data);
     },
     onSuccess: (data) => {
@@ -78,28 +99,33 @@ const StartImprovUploadModal = ({ display, finalAction }: Props) => {
     chunks.length = 0; // Clear chunks before starting a new recording
     if (webcamRef.current && webcamRef.current.video) {
       const stream = webcamRef.current.video.srcObject as MediaStream;
-      navigator.mediaDevices.getUserMedia({ audio: true }).then((audioStream) => {
-        const combinedStream = new MediaStream([...stream.getVideoTracks(), ...audioStream.getAudioTracks()]);
-        mediaRecorder.current = new MediaRecorder(combinedStream);
-        mediaRecorder.current.onstart = () => {
-          console.log("ON START");
-          setMediaBlob(null);
-        };
-        mediaRecorder.current.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            chunks.push(event.data);
-          }
-        };
-        mediaRecorder.current.onstop = () => {
-          const blob = new Blob(chunks, { type: "video/mp4" });
-          setMediaBlob(blob);
-        };
-        mediaRecorder.current.start();
-      }).catch((error) => {
-        console.error("Error accessing media devices.", error);
-      });
-    }
-    else {
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((audioStream) => {
+          const combinedStream = new MediaStream([
+            ...stream.getVideoTracks(),
+            ...audioStream.getAudioTracks(),
+          ]);
+          mediaRecorder.current = new MediaRecorder(combinedStream);
+          mediaRecorder.current.onstart = () => {
+            console.log("ON START");
+            setMediaBlob(null);
+          };
+          mediaRecorder.current.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+              chunks.push(event.data);
+            }
+          };
+          mediaRecorder.current.onstop = () => {
+            const blob = new Blob(chunks, { type: "video/mp4" });
+            setMediaBlob(blob);
+          };
+          mediaRecorder.current.start();
+        })
+        .catch((error) => {
+          console.error("Error accessing media devices.", error);
+        });
+    } else {
       console.log("No webcamRef.current or webcamRef.current.video");
     }
     // Stop automatically after 10 seconds
@@ -109,26 +135,28 @@ const StartImprovUploadModal = ({ display, finalAction }: Props) => {
         handleStopRecording();
       }
     }, 10000);
-  }
+  };
 
   const handleStopRecording = () => {
     console.log("Stopping recording...");
     setIsCapturing(false);
     interval.stop();
     stopAudio();
-    console.log('Audio chunks after stopping:', audioChunks);
+    console.log("Audio chunks after stopping:", audioChunks);
     mediaRecorder.current?.stop();
-  }
+  };
 
   const prepareUpload = async () => {
-    console.log(`handleUpload: frames ${frames.length}, audioChunks ${audioChunks.length}`);
+    console.log(
+      `handleUpload: frames ${frames.length}, audioChunks ${audioChunks.length}`
+    );
     if (frames.length === 0 || audioChunks.length == 0) return;
 
     const audioChunk = audioChunks[0];
     console.log("Audio chunk:", audioChunk);
     const base64Audio = await convertBlobToBase64(audioChunk);
     handleUploadAll.mutateAsync({ audio: base64Audio, frames });
-  }
+  };
 
   const convertBlobToBase64 = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -139,14 +167,14 @@ const StartImprovUploadModal = ({ display, finalAction }: Props) => {
       reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
-  }
+  };
 
   const handleClose = () => {
     setFrames([]);
     setAudioChunks([]);
     chunks.length = 0; //TODO: setMediaBlob(null); ??
     finalAction();
-  }
+  };
 
   return (
     <>
@@ -163,7 +191,7 @@ const StartImprovUploadModal = ({ display, finalAction }: Props) => {
               <Stack>
                 <Grid>
                   <Grid.Col span={6}>
-                    <Box className='motion-upload__devices'>
+                    <Box className="motion-upload__devices">
                       <Select
                         data={userDevices.map((device) => ({
                           value: device.deviceId,
@@ -178,19 +206,19 @@ const StartImprovUploadModal = ({ display, finalAction }: Props) => {
                   <Grid.Col span={6}>
                     <Box>
                       <Button fullWidth onClick={openHints}>
-                        {language === "it" ? "Suggerimenti" : "Hints"}
+                        Hints
                       </Button>
                     </Box>
                   </Grid.Col>
                 </Grid>
                 <Box
                   className="motion-upload__webcam"
-                  style={{ position: 'relative' }}
+                  style={{ position: "relative" }}
                 >
                   <Box
                     className="motion-upload__overview"
                     style={{
-                      position: 'absolute',
+                      position: "absolute",
                       top: 0,
                       left: 0,
                       zIndex: 10,
@@ -201,7 +229,7 @@ const StartImprovUploadModal = ({ display, finalAction }: Props) => {
                     }
                   >
                     {(frames.length !== 0 && !isCapturing && mediaBlob) ||
-                      handleUploadAll.isPending ? (
+                    handleUploadAll.isPending ? (
                       <Box>
                         <video controls width="100%" style={{ zIndex: 20 }}>
                           {mediaBlob && (
@@ -226,7 +254,7 @@ const StartImprovUploadModal = ({ display, finalAction }: Props) => {
                           .enumerateDevices()
                           .then((devices) => {
                             const videoDevices = devices.filter(
-                              (device) => device.kind === 'videoinput'
+                              (device) => device.kind === "videoinput"
                             );
                             setUserDevices(videoDevices);
                             setActiveDevice(videoDevices[0].deviceId);
@@ -243,26 +271,24 @@ const StartImprovUploadModal = ({ display, finalAction }: Props) => {
                         color="red"
                         disabled={!isCapturing}
                       >
-                        {language === "it" ? "Ferma Registrazione" : "Stop Recording"}
+                        Stop Recording
                       </Button>
                     ) : (
                       <Button
                         onClick={handleStartRecording}
                         fullWidth
-                        color={(frames.length > 0 || handleUploadAll.isPending) ? 'orange' : 'violet'}
+                        color={
+                          frames.length > 0 || handleUploadAll.isPending
+                            ? "orange"
+                            : "violet"
+                        }
                         disabled={isCapturing || handleUploadAll.isPending}
                       >
-                        {language === "it"
-                          ? isCapturing
-                            ? 'Registrazione in corso...'
-                            : (frames.length > 0 || handleUploadAll.isPending)
-                              ? 'Ricomincia'
-                              : 'Inizia Registrazione'
-                          : isCapturing
-                            ? 'Recording...'
-                            : (frames.length > 0 || handleUploadAll.isPending)
-                              ? 'Retake'
-                              : 'Start Recording'}
+                        {isCapturing
+                          ? "Recording..."
+                          : frames.length > 0 || handleUploadAll.isPending
+                          ? "Retake"
+                          : "Start Recording"}
                       </Button>
                     )}
                   </Grid.Col>
@@ -272,9 +298,9 @@ const StartImprovUploadModal = ({ display, finalAction }: Props) => {
                       fullWidth
                       disabled={frames.length === 0 || isCapturing}
                       loading={handleUploadAll.isPending}
-                      loaderProps={{ color: 'white', size: 'md', type: 'dots' }}
+                      loaderProps={{ color: "white", size: "md", type: "dots" }}
                     >
-                      {language === "it" ? "Continua" : "Send"}
+                      Send
                     </Button>
                   </Grid.Col>
                 </Grid>
@@ -286,7 +312,7 @@ const StartImprovUploadModal = ({ display, finalAction }: Props) => {
                 <Dialog opened={Object.keys(selectedHints).length > 0}>
                   <Box
                     style={{
-                      height: '100%',
+                      height: "100%",
                     }}
                   >
                     {Object.entries(selectedHints).map(([category, hint]) => (
@@ -299,7 +325,8 @@ const StartImprovUploadModal = ({ display, finalAction }: Props) => {
                           })}
                         >
                           <Text color="white">
-                            {category.charAt(0).toUpperCase() + category.slice(1)}
+                            {category.charAt(0).toUpperCase() +
+                              category.slice(1)}
                           </Text>
                         </Box>
                         <Box
@@ -327,7 +354,7 @@ const StartImprovUploadModal = ({ display, finalAction }: Props) => {
         setSelectedHints={setSelectedHints}
         finalAction={closeHints}
         setEndStory={function (): void {
-          throw new Error('Function not implemented.');
+          throw new Error("Function not implemented.");
         }}
       />
     </>

@@ -1,7 +1,20 @@
-import { Box, Group, Stack, Grid, Center, Loader, Text, RingProgress } from "@mantine/core";
+import {
+  Box,
+  Group,
+  Stack,
+  Grid,
+  Center,
+  Loader,
+  Text,
+  RingProgress,
+} from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import getAxiosInstance from "../utils/axiosInstance";
-import { appendStory, startStory, usePractice3ThingsStore } from "../stores/practice3ThingsStore";
+import {
+  appendStory,
+  startStory,
+  usePractice3ThingsStore,
+} from "../stores/practice3ThingsStore";
 import Practice3ThingsPart from "./Practice3ThingsPart";
 import { useEffect, useState, useRef } from "react";
 
@@ -18,26 +31,25 @@ const Practice3ThingsView = () => {
   const maxQ = 20;
   const [timeLeft, setTimeLeft] = useState<number>(15);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<number | null>(null);
+  const intervalRef = useRef<number | null>(null);
 
   const { isError, isLoading, refetch } = useQuery({
     queryKey: ["practice-3things-init", id],
     queryFn: ({ signal }) => {
       return instance
-        .post(
-          "/practice/generate_questions",
-          { maxQ: maxQ },
-          { signal }
-        )
+        .post("/practice/generate_questions", { maxQ: maxQ }, { signal })
         .then((res) => {
           console.log("Practice3ThingsView - res:", res);
           //generate like 20 questions, start with 1st
           setQuestions(res.data.data.parts);
           if (cntQ == 0) {
-            startStory({ start: Date.now(), id: res.data.data.id, parts: [res.data.data.parts[cntQ]] });
-          }
-          else {
+            startStory({
+              start: Date.now(),
+              id: res.data.data.id,
+              parts: [res.data.data.parts[cntQ]],
+            });
+          } else {
             appendStory(res.data.data.parts[0]);
           }
           setCntQ(1);
@@ -51,11 +63,11 @@ const Practice3ThingsView = () => {
 
   useEffect(() => {
     if (!isLoading && story && story.parts.length > 0) {
-      setTimeLeft(15);
+      setTimeLeft(30);
 
       timerRef.current = setTimeout(() => {
         setNext(true);
-      }, 15000);
+      }, 30000);
 
       intervalRef.current = setInterval(() => {
         setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
@@ -94,7 +106,6 @@ const Practice3ThingsView = () => {
       setNext(false);
     }
   }, [next, refetch, cntQ, maxQ, questions]);
-
 
   if (isLoading) {
     return (
@@ -143,7 +154,9 @@ const Practice3ThingsView = () => {
                         roundCaps
                         size={60}
                         thickness={6}
-                        sections={[{ value: (timeLeft / 15) * 100, color: "violet" }]}
+                        sections={[
+                          { value: (timeLeft / 15) * 100, color: "violet" },
+                        ]}
                       />
                       <Text
                         size="xs"

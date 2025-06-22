@@ -36,29 +36,27 @@ const Practice3ThingsPart = ({ part, isNew, setNext }: Props) => {
   const autoReadStorySections = usePreferencesStore.use.autoReadStorySections();
 
   const finished = usePractice3ThingsStore.use.finished();
-  const language = usePreferencesStore.use.language();
 
-  const [value, setValue] = useState('');
-  const [error, setError] = useState('');
+  const [value, setValue] = useState("");
+  const [error, setError] = useState("");
 
   const validateInput = () => {
-    const parts = value.split(',').map(part => part.trim());
-    if (parts.length !== 3 || parts.some(part => part === '')) {
-      setError(language === "it" ? "Per favore inserisci 3 elementi separati da virgole" : 'Please enter 3 items separated by commas');
+    const parts = value.split(",").map((part) => part.trim());
+    if (parts.length !== 3 || parts.some((part) => part === "")) {
+      setError("Please enter 3 items separated by commas");
       return false;
-    }
-    else {
-      setError('');
+    } else {
+      setError("");
       return true;
     }
-  }
+  };
 
   const handleBlur = () => {
     validateInput();
   };
 
-  const handleKeyDown = (event: { key: string; }) => {
-    if (event.key === 'Enter') {
+  const handleKeyDown = (event: { key: string }) => {
+    if (event.key === "Enter") {
       if (validateInput()) {
         // setValue('');
         setNext(true);
@@ -122,19 +120,20 @@ const Practice3ThingsPart = ({ part, isNew, setNext }: Props) => {
               bg={colorScheme === "dark" ? "violet.8" : "violet.4"}
               c={"white"}
             >
-              {language === "en" ? "The story has ended!" : "La storia è finita!"}
+              The story has ended!
             </Paper>
           )}
           <Flex direction="row" gap="md" style={{ marginTop: 8 }}>
             <TextInput
-              placeholder={language === "it" ? "Un gatto, un cane, un topo" : "A cat, a dog, a mouse"}
+              placeholder="A cat, a dog, a mouse"
               value={value}
               onChange={(event) => setValue(event.currentTarget.value)}
               onKeyDown={handleKeyDown}
               onBlur={handleBlur}
               error={error}
-              style={{ width: '100%' }}
-              disabled={!isNew} />
+              style={{ width: "50vw", minWidth: "100%" }}
+              disabled={!isNew}
+            />
           </Flex>
         </Flex>
       </Stack>

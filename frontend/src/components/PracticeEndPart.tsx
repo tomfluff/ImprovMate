@@ -49,7 +49,6 @@ const PracticeEndPart = ({ part, isNew, setNext, reset }: Props) => {
   const autoReadStorySections = usePreferencesStore.use.autoReadStorySections();
 
   const finished = usePracticeEndingsStore.use.finished();
-  const language = usePreferencesStore.use.language();
 
   const outcome = useMutation({
     mutationKey: ["story-part"],
@@ -71,7 +70,8 @@ const PracticeEndPart = ({ part, isNew, setNext, reset }: Props) => {
     }
   }, [isNew, text]);
 
-  const [captureModal, { open: openCapture, close: closeCapture }] = useDisclosure();
+  const [captureModal, { open: openCapture, close: closeCapture }] =
+    useDisclosure();
 
   const handleMotionClick = (action: TAction) => {
     if (!action.active) return;
@@ -85,14 +85,16 @@ const PracticeEndPart = ({ part, isNew, setNext, reset }: Props) => {
     chooseAction(action);
     const story = getLastStoryText();
     if (!story) return;
-    if (action.title.toLowerCase() === "finish") { //TODO: = reset?
+    if (action.title.toLowerCase() === "finish") {
+      //TODO: = reset?
       //   ending.mutate({
       //     story: story,
       //   });
       reset();
     } else if (action.title.toLowerCase() === "next") {
       setNext(true);
-    } else { //try again
+    } else {
+      //try again
       console.log("Try again...");
       tryAgain();
       console.log("Try again: ", getLastStoryText());
@@ -150,33 +152,37 @@ const PracticeEndPart = ({ part, isNew, setNext, reset }: Props) => {
               bg={colorScheme === "dark" ? "violet.8" : "violet.4"}
               c={"white"}
             >
-              {language === "en" ? "The story has ended!" : "La storia è finita!"}
+              The story has ended!
             </Paper>
           )}
           {part.actions?.map((action: TAction, i: number) => {
             if (action.isImprov) {
-              return <ActionButton
-                key={i}
-                action={action}
-                isEnd={i === part.actions!.length - 1 && !action.isImprov}
-                handleClick={() => handleMotionClick(action)}
-              />
-            }
-            else {
-              return <ActionButton
-                key={i}
-                action={action}
-                isEnd={i === part.actions!.length - 1}
-                handleClick={() => handleActionClick(action)}
-              />
+              return (
+                <ActionButton
+                  key={i}
+                  action={action}
+                  isEnd={i === part.actions!.length - 1 && !action.isImprov}
+                  handleClick={() => handleMotionClick(action)}
+                />
+              );
+            } else {
+              return (
+                <ActionButton
+                  key={i}
+                  action={action}
+                  isEnd={i === part.actions!.length - 1}
+                  handleClick={() => handleActionClick(action)}
+                />
+              );
             }
           })}
-          {(outcome.isPending) && (
-            <Loader color="gray" size="md" />
-          )}
+          {outcome.isPending && <Loader color="gray" size="md" />}
         </Flex>
       </Stack>
-      <PracticeEndImprovModal display={captureModal} finalAction={closeCapture} />
+      <PracticeEndImprovModal
+        display={captureModal}
+        finalAction={closeCapture}
+      />
     </>
   );
 };

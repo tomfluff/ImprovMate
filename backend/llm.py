@@ -33,7 +33,6 @@ class Storyteller:
         self.llm = OpenAI(api_key=key, organization=org)
         self.gpt4 = MODEL_GPT4
         self.gpt4mini = MODEL_GPT4MINI
-        self.gpt3 = MODEL_GPT3
         self.vision = MODEL_VISION
         self.image_gen = MODEL_IMAGE_GEN
         self.stt = MODEL_STT
@@ -43,17 +42,15 @@ class Storyteller:
             logger.info(f"LLM storyteller initialized.")
         if logger:
             logger.debug(
-                f"Modes: {self.gpt4}, {self.gpt3}, {self.vision}, {self.image_gen}, {self.stt}, {self.tts}"
+                f"Modes: {self.gpt4}, {self.gpt4mini}, {self.vision}, {self.image_gen}, {self.stt}, {self.tts}"
             )
-
 
     def hello_world(self):
         messages = [
             {"role": "system", "content": "You are a helpful chatbot."},
             {"role": "user", "content": "Hello, who are you?"},
         ]
-        return self.send_gpt4_request(messages)
-
+        return self.send_gpt_hq_request(messages)
 
     def __get_json_data(self, datastr):
         try:
@@ -69,7 +66,6 @@ class Storyteller:
         finally:
             if logger:
                 logger.debug(f"Data string: '{datastr}'")
-
 
     def __improve_prompt(
         self,
@@ -112,7 +108,7 @@ Example JSON output:
                 ],
             },
         ]
-        data = self.send_gpt3_request(messages)
+        data = self.send_gpt_lq_request(messages)
         data = self.__get_json_data(data)
         if logger:
             logger.debug(f"Improved prompt: {data}")
@@ -124,31 +120,25 @@ Example JSON output:
         # Send LLM request to inquire about the drawing (based on the data)
         pass
 
-
     def __analyze_feedback(self, feedback):
         # Analyze the user feedback (positive or negative, etc.)
         pass
-
 
     def __calc_story_part_score(self, story_part):
         # Get the score of a story part
         pass
 
-
     def __get_least_frequenct_word(self, story_part):
         # Get the least frequent word in the story part
         pass
-
 
     def __get_diff_story_elements(self, story_part):
         # Get the different story elements in the story part
         pass
 
-
     def __get_named_story_elements(self, story_part):
         # Get the named story elements in the story part
         pass
-
 
     def __check_ending_condition(self):
         # Check if the story should be finished
@@ -203,9 +193,8 @@ Example JSON object:
                 ],
             },
         ]
-        data = self.send_gpt4_request(messages)
+        data = self.send_gpt_hq_request(messages)
         return self.__get_json_data(data)
-
 
     def analyze_story_parts(self, context):
         # Send LLM request to analyze story parts based on a given context.
@@ -276,9 +265,8 @@ Here is an example JSON object:
                 ],
             },
         ]
-        data = self.send_gpt3_request(messages)
+        data = self.send_gpt_lq_request(messages)
         return self.__get_json_data(data)
-
 
     def terminate_story(self, context, complexity):
         endings = [
@@ -334,9 +322,8 @@ Example JSON object:
                 ],
             },
         ]
-        data = self.send_gpt4_request(messages)
+        data = self.send_gpt_hq_request(messages)
         return self.__get_json_data(data)
-
 
     def generate_actions(self, context, complexity, n=2):
         # Generate choices based on a given context
@@ -386,9 +373,8 @@ Here is an example JSON object:
                 ],
             },
         ]
-        data = self.send_gpt4_request(messages)
+        data = self.send_gpt_hq_request(messages)
         return self.__get_json_data(data)
-
 
     def generate_story_part(self, context, complexity):
         # Generate a story part based on the given context
@@ -464,11 +450,10 @@ Example JSON object:
 
         if logger:
             logger.debug(f"Chosen setting: {setting}")
-        if logger: 
+        if logger:
             logger.debug(f"New part message: {messages}")
-        data = self.send_gpt4_request(messages)
+        data = self.send_gpt_hq_request(messages)
         return self.__get_json_data(data)
-
 
     def generate_premise(self, character, complexity, n=2):
         # Generate a premise based on the given character
@@ -513,15 +498,11 @@ Example JSON object:
                 ],
             },
         ]
-        data = self.send_gpt3_request(messages)
+        data = self.send_gpt_lq_request(messages)
         return self.__get_json_data(data)
 
-    
-    def generate_init_hints(self, complexity, language="en", n=2): #TODO: complexity? 
+    def generate_init_hints(self, complexity, n=2):
         # Generate hints to start an improv story
-        language_map = {"en": "English", "it": "Italian"}
-        language_full = language_map.get(language, "English")  # Default to English if unsupported language is provided
-        
         messages = [
             {
                 "role": "system",
@@ -529,12 +510,12 @@ Example JSON object:
                     {
                         "type": "text",
                         "text": f"""
-You are a helpful assistant fluent in {language_full}. help me generate some prompts to start an improvisation performance.
+You are a helpful assistant fluent in English. help me generate some prompts to start an improvisation performance.
 1. Generate {n} elements, each composed of 3 fields, the first answering the question 'Who?', the second 'Where?' and the third 'What happened?'
 2. The answer to 'Who?' should be a character that can be used as a protagonist. (examples: a clown, a turtle, the Pope)
 3. The answer to 'Where?' should be a location where the story takes place.
 4. The answer to 'What happened?' should be a short event that can be used as the starting point of the story.
-5. Use the language mentioned before ({language_full}).
+5. Use English.
 6. Return as a JSON object. 
     - No styling and all in ascii characters.
     - Use double quotes for keys and values.
@@ -543,20 +524,21 @@ Example JSON object:
 {{
     "list": [
         {{
-            "{'chi' if language == 'it' else 'who'}": "{'Il Papa' if language == 'it' else 'The Pope'}",
-            "{'dove' if language == 'it' else 'where'}": "{'Una casa infestata' if language == 'it' else 'A haunted house'}",
-            "{'cosa' if language == 'it' else 'what'}": "{'Ha trovato un passaggio segreto nel seminterrato' if language == 'it' else 'He found a secret passage in the basement.'}"
+            "who": "The Pope",
+            "where": "A haunted house",
+            "what": "He found a secret passage in the basement."
         }},
     ]
 }}
-"""
+""",
                     }
                 ],
             },
         ]
-        data = self.send_gpt4_request(messages, temperature=1.3) #TODO: change temperature?
+        data = self.send_gpt_hq_request(
+            messages, temperature=1.3
+        )  # TODO: change temperature?
         return self.__get_json_data(data)
-
 
     def generate_character(self, drawing_url, complexity):
         messages = [
@@ -600,7 +582,7 @@ Here is an example JSON object:
         'backstory': 'Johnny the cat loves tuna. He is always hungry and looking for food. He is a very friendly cat and loves to play with his toys.',
     }
 }
-"""
+""",
                     }
                 ],
             },
@@ -616,7 +598,6 @@ Here is an example JSON object:
         ]
         data = self.send_vision_request(messages)
         return self.__get_json_data(data)
-
 
     def generate_story_image(self, story_part):
         content = story_part["content"]
@@ -634,11 +615,12 @@ In the style of: {style}.
         result = self.send_image_request(prompt)
         return {"prompt": prompt, "image_url": result}
 
-    
-    def generate_character_improv(self, transcript, motion, hints=[], language="en", end=False): #TODO: shorter backstory? do we need image part? #TODO: remove end parameter?
+    def generate_character_improv(self, transcript, motion, hints=[], end=False):
         if logger:
-            logger.debug(f"Generating character from improv: {transcript}, {motion}, {hints}.")
-        
+            logger.debug(
+                f"Generating character from improv: {transcript}, {motion}, {hints}."
+            )
+
         sys_msg = """
 You are a helpful assistant. Help me generate the character of the story starting from the dialogue and motion performed by the actor.
 1. Name the main character in the story.
@@ -646,25 +628,19 @@ You are a helpful assistant. Help me generate the character of the story startin
 """
         if len(hints) > 0:
             if end:
-                type_of_end = str(hints).split(':')[0].strip().replace("{", "")
-                hint = str(hints).split(':')[1].strip().replace("}", "")
+                type_of_end = str(hints).split(":")[0].strip().replace("{", "")
+                hint = str(hints).split(":")[1].strip().replace("}", "")
                 sys_msg += f"3 - As context for the improv performance, the scenario can be described as {type_of_end} and this is the scenario staged by the performer: {hint}. Be faithful to the context and use the characters, places or actions mentioned.\n"
-            else: 
+            else:
                 sys_msg += f"3 - As context for the improv performance, use the following hints to guide your analysis: {hints}. Be faithful to the context and use the characters, places or actions mentioned.\n"
-                if language == "it":
-                    if hints.get("chi"):
-                        sys_msg += "- 'chi': The character that the performer is impersonating, and will be the protagonist of the story.\n"
-                    if hints.get("dove"):
-                        sys_msg += "- 'dove': Location where the story takes place.\n"
-                    if hints.get("cosa"):
-                        sys_msg += "- 'cosa': Event used as the starting point of the story.\n"
-                else: 
-                    if hints.get("who"):
-                        sys_msg += "- 'who': he character that the performer is impersonating, and will be the protagonist of the story.\n"
-                    if hints.get("where"):
-                        sys_msg += "- 'where': Location where the story takes place.\n"
-                    if hints.get("what"):
-                        sys_msg += "- 'what': Event used as the starting point of the story.\n"
+                if hints.get("who"):
+                    sys_msg += "- 'who': he character that the performer is impersonating, and will be the protagonist of the story.\n"
+                if hints.get("where"):
+                    sys_msg += "- 'where': Location where the story takes place.\n"
+                if hints.get("what"):
+                    sys_msg += (
+                        "- 'what': Event used as the starting point of the story.\n"
+                    )
 
         sys_msg += """
 4. Return as a JSON object. 
@@ -717,16 +693,17 @@ Here is an example JSON object:
                 ],
             },
         ]
-        data = self.send_gpt4_request(messages)
+        data = self.send_gpt_hq_request(messages)
         return self.__get_json_data(data)
 
-
-    def generate_premise_improv(self, transcript, motion, character): #TODO: improve prompt - specify where and who
-        # Generate a story part based on the imrprov result  
+    def generate_premise_improv(
+        self, transcript, motion, character
+    ):  # TODO: improve prompt - specify where and who
+        # Generate a story part based on the imrprov result
         improv = {"dialogue": transcript, "motion": motion}
         if logger:
             logger.debug(f"Improv in generate_premise_improv(): {improv}")
-        
+
         messages = [
             {
                 "role": "system",
@@ -785,12 +762,11 @@ Example JSON object:
                 ],
             },
         ]
-        data = self.send_gpt4_request(messages)
-        return self.__get_json_data(data) 
-    
-    
+        data = self.send_gpt_hq_request(messages)
+        return self.__get_json_data(data)
+
     def generate_character_image_improv(self, character):
-        
+
         prompt = f"""
 Generate an image using the description of the character: {character}.
 Use a realistic style.
@@ -800,19 +776,22 @@ Use a realistic style.
         )
         if logger:
             logger.debug(f"Improved prompt: {prompt}")
-            
+
         prompt = prompt["new_prompt"]
 
         result = self.send_image_request(prompt)
         return {"prompt": prompt, "image_url": result}
 
-
-    def generate_character_premise_improv(self, transcript, frames, hints=[], language="en", end=False):
+    def generate_character_premise_improv(
+        self, transcript, frames, hints=[], end=False
+    ):
         improv = {"dialogue": transcript, "motion": frames}
         ctx = {"hints": hints, "end": end}
         if logger:
-            logger.debug(f"Improv in generate_character_premise_improv(): {improv}, {ctx}")
-        
+            logger.debug(
+                f"Improv in generate_character_premise_improv(): {improv}, {ctx}"
+            )
+
         sys_msg = """
 You are a helpful assistant storyteller. Help me generate the character and the premise of the story starting from the dialogue and motion performed by the actor.
 1. The input object is a short improv performance that is to be used as a beginning for the narrative of the improvisation story.
@@ -825,25 +804,19 @@ You are a helpful assistant storyteller. Help me generate the character and the 
 """
         if len(hints) > 0:
             if end:
-                type_of_end = str(hints).split(':')[0].strip().replace("{", "")
-                hint = str(hints).split(':')[1].strip().replace("}", "")
+                type_of_end = str(hints).split(":")[0].strip().replace("{", "")
+                hint = str(hints).split(":")[1].strip().replace("}", "")
                 sys_msg += f"8 - As context for the improv performance, the scenario can be described as {type_of_end} and this is the scenario staged by the performer: {hint}. Be faithful to the context and use the characters, places or actions mentioned.\n"
-            else: 
+            else:
                 sys_msg += f"8 - As context for the improv performance, use the following hints to guide your analysis: {hints}. Be faithful to the context and use the characters, places or actions mentioned.\n"
-                if language == "it":
-                    if hints.get("chi"):
-                        sys_msg += "- 'chi': The character that the performer is impersonating, and will be the protagonist of the story.\n"
-                    if hints.get("dove"):
-                        sys_msg += "- 'dove': Location where the story takes place.\n"
-                    if hints.get("cosa"):
-                        sys_msg += "- 'cosa': Event used as the starting point of the story.\n"
-                else: 
-                    if hints.get("who"):
-                        sys_msg += "- 'who': he character that the performer is impersonating, and will be the protagonist of the story.\n"
-                    if hints.get("where"):
-                        sys_msg += "- 'where': Location where the story takes place.\n"
-                    if hints.get("what"):
-                        sys_msg += "- 'what': Event used as the starting point of the story.\n"
+                if hints.get("who"):
+                    sys_msg += "- 'who': he character that the performer is impersonating, and will be the protagonist of the story.\n"
+                if hints.get("where"):
+                    sys_msg += "- 'where': Location where the story takes place.\n"
+                if hints.get("what"):
+                    sys_msg += (
+                        "- 'what': Event used as the starting point of the story.\n"
+                    )
 
         sys_msg += """
 9. Return as a JSON object. 
@@ -901,7 +874,8 @@ Here is an example JSON object:
                         "type": "text",
                         "text": """
 Analyze the following improvisational performance with reference to the audio transcription: '%s'.
-"""                     % transcript, #TODO: try different examples
+"""
+                        % transcript,  # TODO: try different examples
                     },
                 ],
             },
@@ -909,24 +883,31 @@ Analyze the following improvisational performance with reference to the audio tr
                 "role": "user",
                 "content": [
                     "These are video frames in order.",
-                    *map(lambda frame: {"type": "image_url", "image_url": {
-                    "url": f'{frame}', "detail": "low"}},
-                    frames)  
+                    *map(
+                        lambda frame: {
+                            "type": "image_url",
+                            "image_url": {"url": f"{frame}", "detail": "low"},
+                        },
+                        frames,
+                    ),
                 ],
-            }
+            },
         ]
-        data = self.send_gpt4_request(messages)
+        data = self.send_gpt_hq_request(messages)
         return self.__get_json_data(data)
-        
 
-    def generate_story_improv(self, transcript, frames, story, premise, keypoint, hints=[], language="en", end=False):
+    def generate_story_improv(
+        self, transcript, frames, story, premise, keypoint, hints=[], end=False
+    ):
         improv = {"dialogue": transcript, "motion": frames}
         ctx = {"story": story, "hints": hints, "end": end}
         if logger:
-            logger.debug(f"Improv in generate_character_premise_improv(): {improv}, {ctx}")
+            logger.debug(
+                f"Improv in generate_character_premise_improv(): {improv}, {ctx}"
+            )
 
         length = random.choice([1, 1, 1, 2, 2, 3, 4])
-        
+
         sys_msg = f"""
 You are a helpful assistant storyteller. Help me generate the next part of the story starting from the dialogue and motion performed by the actor.
 1. The input object is a short improv performance that is to be used as a continuation for the narrative of the improvisation story.
@@ -935,25 +916,23 @@ You are a helpful assistant storyteller. Help me generate the next part of the s
 """
         if len(hints) > 0:
             if end:
-                type_of_end = str(hints).split(':')[0].strip().replace("{", "")
-                hint = str(hints).split(':')[1].strip().replace("}", "")
+                type_of_end = str(hints).split(":")[0].strip().replace("{", "")
+                hint = str(hints).split(":")[1].strip().replace("}", "")
                 sys_msg += f"4 - As context for the improv performance, the scenario can be described as {type_of_end} and this is the scenario staged by the performer: {hint}. Be faithful to the context and use the characters, places or actions mentioned.\n"
-            else: 
+            else:
                 sys_msg += f"4 - As context for the improv performance, use the following hints to guide your analysis: {hints}. Be faithful to the context and use the characters, places or actions mentioned.\n"
-                if language == "it":
-                    if hints.get("chi"):
-                        sys_msg += "- 'chi': The character that the performer is impersonating, and will be the protagonist of the story.\n"
-                    if hints.get("dove"):
-                        sys_msg += "- 'dove': Location where the story takes place.\n"
-                    if hints.get("cosa"):
-                        sys_msg += "- 'cosa': Event used as the starting point of the story.\n"
-                else: 
-                    if hints.get("who"):
-                        sys_msg += "- 'who': he character that the performer is impersonating, and will be the protagonist of the story.\n"
-                    if hints.get("where"):
-                        sys_msg += "- 'where': Location where the story takes place.\n"
+                if hints.get("who"):
+                    sys_msg += "- 'who': he character that the performer is impersonating, and will be the protagonist of the story.\n"
+                if hints.get("where"):
+                    sys_msg += "- 'where': Location where the story takes place.\n"
+                if hints.get("what"):
+                    sys_msg += (
+                        "- 'what': Event used as the starting point of the story.\n"
+                    )
                     if hints.get("what"):
-                        sys_msg += "- 'what': Event used as the starting point of the story.\n"
+                        sys_msg += (
+                            "- 'what': Event used as the starting point of the story.\n"
+                        )
 
         sys_msg += f"""
 5. Consider the premise of the story, it consist main scenario or conflict of the story: {premise}.
@@ -1012,7 +991,8 @@ Here is an example JSON object:
                         "type": "text",
                         "text": """
 Analyze the following improvisational performance with reference to the audio transcription: '%s'.
-"""                     % transcript, #TODO: try different examples
+"""
+                        % transcript,  # TODO: try different examples
                     },
                 ],
             },
@@ -1020,22 +1000,29 @@ Analyze the following improvisational performance with reference to the audio tr
                 "role": "user",
                 "content": [
                     "These are video frames in order.",
-                    *map(lambda frame: {"type": "image_url", "image_url": {
-                    "url": f'{frame}', "detail": "low"}},
-                    frames)  
+                    *map(
+                        lambda frame: {
+                            "type": "image_url",
+                            "image_url": {"url": f"{frame}", "detail": "low"},
+                        },
+                        frames,
+                    ),
                 ],
-            }
+            },
         ]
-        data = self.send_gpt4_request(messages)
+        data = self.send_gpt_hq_request(messages)
         return self.__get_json_data(data)
-    
 
-    def generate_ending_improv(self, transcript, frames, story, premise, keypoint, hints=[], language="en", end=True):
+    def generate_ending_improv(
+        self, transcript, frames, story, premise, keypoint, hints=[], end=True
+    ):
         improv = {"dialogue": transcript, "motion": frames}
         ctx = {"story": story, "hints": hints, "end": end}
         if logger:
-            logger.debug(f"Improv in generate_character_premise_improv(): {improv}, {ctx}")
-        
+            logger.debug(
+                f"Improv in generate_character_premise_improv(): {improv}, {ctx}"
+            )
+
         sys_msg = f"""
 You are a helpful assistant storyteller. Help me generate the ending of the story starting from the dialogue and motion performed by the actor.
 1. The input object is a short improv performance that is to be used as an ending for the narrative of the improvisation story.
@@ -1044,25 +1031,19 @@ You are a helpful assistant storyteller. Help me generate the ending of the stor
 """
         if len(hints) > 0:
             if end:
-                type_of_end = str(hints).split(':')[0].strip().replace("{", "")
-                hint = str(hints).split(':')[1].strip().replace("}", "")
+                type_of_end = str(hints).split(":")[0].strip().replace("{", "")
+                hint = str(hints).split(":")[1].strip().replace("}", "")
                 sys_msg += f"4 - As context for the improv performance, the scenario can be described as {type_of_end} and this is the scenario staged by the performer: {hint}. Be faithful to the context and use the characters, places or actions mentioned.\n"
-            else: 
+            else:
                 sys_msg += f"4 - As context for the improv performance, use the following hints to guide your analysis: {hints}. Be faithful to the context and use the characters, places or actions mentioned.\n"
-                if language == "it":
-                    if hints.get("chi"):
-                        sys_msg += "- 'chi': The character that the performer is impersonating, and will be the protagonist of the story.\n"
-                    if hints.get("dove"):
-                        sys_msg += "- 'dove': Location where the story takes place.\n"
-                    if hints.get("cosa"):
-                        sys_msg += "- 'cosa': Event used as the starting point of the story.\n"
-                else: 
-                    if hints.get("who"):
-                        sys_msg += "- 'who': he character that the performer is impersonating, and will be the protagonist of the story.\n"
-                    if hints.get("where"):
-                        sys_msg += "- 'where': Location where the story takes place.\n"
-                    if hints.get("what"):
-                        sys_msg += "- 'what': Event used as the starting point of the story.\n"
+                if hints.get("who"):
+                    sys_msg += "- 'who': he character that the performer is impersonating, and will be the protagonist of the story.\n"
+                if hints.get("where"):
+                    sys_msg += "- 'where': Location where the story takes place.\n"
+                if hints.get("what"):
+                    sys_msg += (
+                        "- 'what': Event used as the starting point of the story.\n"
+                    )
 
         sys_msg += f"""
 5. Consider the premise of the story, it consist main scenario or conflict of the story: {premise}.
@@ -1122,7 +1103,8 @@ Here is an example JSON object:
                         "type": "text",
                         "text": """
 Analyze the following improvisational performance with reference to the audio transcription: '%s'.
-"""                     % transcript, #TODO: try different examples
+"""
+                        % transcript,  # TODO: try different examples
                     },
                 ],
             },
@@ -1130,22 +1112,29 @@ Analyze the following improvisational performance with reference to the audio tr
                 "role": "user",
                 "content": [
                     "These are video frames in order.",
-                    *map(lambda frame: {"type": "image_url", "image_url": {
-                    "url": f'{frame}', "detail": "low"}},
-                    frames)  
+                    *map(
+                        lambda frame: {
+                            "type": "image_url",
+                            "image_url": {"url": f"{frame}", "detail": "low"},
+                        },
+                        frames,
+                    ),
                 ],
-            }
+            },
         ]
-        data = self.send_gpt4_request(messages)
+        data = self.send_gpt_hq_request(messages)
         return self.__get_json_data(data)
 
-
-    def generate_ending_exercise_improv(self, transcript, frames, story, hints=[], language="en", end=True):
+    def generate_ending_exercise_improv(
+        self, transcript, frames, story, hints=[], end=True
+    ):
         improv = {"dialogue": transcript, "motion": frames}
         ctx = {"hints": hints, "end": end}
         if logger:
-            logger.debug(f"Improv in generate_character_premise_improv(): {improv}, {ctx}")
-        
+            logger.debug(
+                f"Improv in generate_character_premise_improv(): {improv}, {ctx}"
+            )
+
         sys_msg = f"""
 You are a helpful assistant storyteller. Help me generate the ending of the story starting from the dialogue and motion performed by the actor.
 1. The input object is a short improv performance that is to be used as an ending for the narrative of the improvisation story.
@@ -1154,25 +1143,19 @@ You are a helpful assistant storyteller. Help me generate the ending of the stor
 """
         if len(hints) > 0:
             if end:
-                type_of_end = str(hints).split(':')[0].strip().replace("{", "")
-                hint = str(hints).split(':')[1].strip().replace("}", "")
+                type_of_end = str(hints).split(":")[0].strip().replace("{", "")
+                hint = str(hints).split(":")[1].strip().replace("}", "")
                 sys_msg += f"4 - As context for the improv performance, the scenario can be described as {type_of_end} and this is the scenario staged by the performer: {hint}. Be faithful to the context and use the characters, places or actions mentioned.\n"
-            else: 
+            else:
                 sys_msg += f"4 - As context for the improv performance, use the following hints to guide your analysis: {hints}. Be faithful to the context and use the characters, places or actions mentioned.\n"
-                if language == "it":
-                    if hints.get("chi"):
-                        sys_msg += "- 'chi': The character that the performer is impersonating, and will be the protagonist of the story.\n"
-                    if hints.get("dove"):
-                        sys_msg += "- 'dove': Location where the story takes place.\n"
-                    if hints.get("cosa"):
-                        sys_msg += "- 'cosa': Event used as the starting point of the story.\n"
-                else: 
-                    if hints.get("who"):
-                        sys_msg += "- 'who': he character that the performer is impersonating, and will be the protagonist of the story.\n"
-                    if hints.get("where"):
-                        sys_msg += "- 'where': Location where the story takes place.\n"
-                    if hints.get("what"):
-                        sys_msg += "- 'what': Event used as the starting point of the story.\n"
+                if hints.get("who"):
+                    sys_msg += "- 'who': he character that the performer is impersonating, and will be the protagonist of the story.\n"
+                if hints.get("where"):
+                    sys_msg += "- 'where': Location where the story takes place.\n"
+                if hints.get("what"):
+                    sys_msg += (
+                        "- 'what': Event used as the starting point of the story.\n"
+                    )
 
         sys_msg += f"""
 5. Consider the narrative context that has been established so far: {story}.
@@ -1226,7 +1209,8 @@ Here is an example JSON object:
                         "type": "text",
                         "text": """
 Analyze the following improvisational performance with reference to the audio transcription: '%s'.
-"""                     % transcript, #TODO: try different examples
+"""
+                        % transcript,  # TODO: try different examples
                     },
                 ],
             },
@@ -1234,15 +1218,18 @@ Analyze the following improvisational performance with reference to the audio tr
                 "role": "user",
                 "content": [
                     "These are video frames in order.",
-                    *map(lambda frame: {"type": "image_url", "image_url": {
-                    "url": f'{frame}', "detail": "low"}},
-                    frames)  
+                    *map(
+                        lambda frame: {
+                            "type": "image_url",
+                            "image_url": {"url": f"{frame}", "detail": "low"},
+                        },
+                        frames,
+                    ),
                 ],
-            }
+            },
         ]
-        data = self.send_gpt4_request(messages)
+        data = self.send_gpt_hq_request(messages)
         return self.__get_json_data(data)
-
 
     def translate_text(self, text, source_language="en", target_language="en"):
         source = Language.get(source_language)
@@ -1280,13 +1267,12 @@ Example JSON object:
             },
         ]
 
-        response = self.send_gpt3_request(messages)
+        response = self.send_gpt_lq_request(messages)
         response = self.__get_json_data(response)
         data = response["translation"]
         if logger:
             logger.debug(f"Translated text: {data}")
         return data
-
 
     def translate_keypoints(self, kp, source_language="en", target_language="en"):
         if logger:
@@ -1308,8 +1294,8 @@ Translate text from %s to %s.
 
 Example JSON object:
 {
-    "head": ['Parte della storia', 'Chi', 'Dove', 'Oggetti'],
-    "body": [[1, "Riccardo", "Caltagirone", "Una macchina nera"], [2, ["Riccardo", "Adil"], "Caltagirone", ["Una macchina nera", "Un telefono"]]],
+    "head": ['Story Part', 'Who', 'Where', 'Objects'],
+    "body": [[1, "Johnny", "Kitchen", "A black car"], [2, ["Johnny", "Sarah"], "Kitchen", ["A black car", "A phone"]]],
 }
 """
                         % (source, target),
@@ -1327,12 +1313,11 @@ Example JSON object:
             },
         ]
 
-        response = self.send_gpt3_request(messages)
+        response = self.send_gpt_lq_request(messages)
         response = self.__get_json_data(response)
         if logger:
             logger.debug(f"Translated keypoints: {response}")
         return response
-    
 
     def process_motion(self, frames, story):
         if logger:
@@ -1367,7 +1352,8 @@ Example:
     "action": "Punching",
     "keywords": ["punch", "fighting"]
 }
-"""                     % story,
+"""
+                        % story,
                     },
                 ],
             },
@@ -1375,36 +1361,40 @@ Example:
                 "role": "user",
                 "content": [
                     "These are video frames in order.",
-                    *map(lambda frame: {"type": "image_url", "image_url": {
-                    "url": f'{frame}', "detail": "low"}},
-                    frames)  
+                    *map(
+                        lambda frame: {
+                            "type": "image_url",
+                            "image_url": {"url": f"{frame}", "detail": "low"},
+                        },
+                        frames,
+                    ),
                 ],
-            }
+            },
         ]
-        
-        data = self.send_gpt4_request(messages)
+
+        data = self.send_gpt_hq_request(messages)
         return self.__get_json_data(data)
-  
-        
-    def speech_to_text(self, audio_file, language="en"): #TODO: change prompt?
+
+    def speech_to_text(self, audio_file):
         if logger:
             logger.debug(f"Audio file: {audio_file}")
         transcript = self.llm.audio.transcriptions.create(
-                    model=self.stt,
-                    file=audio_file,
-                    language=language,
-                    prompt="""
+            model=self.stt,
+            file=audio_file,
+            language="en",
+            prompt="""
 The following is a recording of an improv performance.
 The language is conversational, with some abrupt changes in tone or topic.
 Please prioritize capturing the essence of the dialogue, including pauses, interruptions and reactions.""",
-                    response_format="json",
-                )
+            response_format="json",
+        )
         return transcript
-    
-    
-    def process_improv_noctx(self, end, frames, hints=[], transcript="Hello", language="en"): #TODO: move hints to user message?
+
+    def process_improv_noctx(self, end, frames, hints=[], transcript="Hello"):
         if logger:
-            logger.debug(f"Transcript: {transcript}, Hints: {hints}. Processing motion...")
+            logger.debug(
+                f"Transcript: {transcript}, Hints: {hints}. Processing motion..."
+            )
 
         sys_msg = """
 You are a performance choreographer specializing in improvisation. 
@@ -1416,25 +1406,19 @@ Explain how these movements connect with the improvisational flow and transform 
 """
         if len(hints) > 0:
             if end:
-                type_of_end = str(hints).split(':')[0].strip().replace("{", "")
-                hint = str(hints).split(':')[1].strip().replace("}", "")
+                type_of_end = str(hints).split(":")[0].strip().replace("{", "")
+                hint = str(hints).split(":")[1].strip().replace("}", "")
                 sys_msg += f"3 - As context for the improv performance, the scenario can be described as {type_of_end} and this is the scenario staged by the performer: {hint}. Be faithful to the context and use the characters, places or actions mentioned.\n"
-            else: 
+            else:
                 sys_msg += f"3 - As context for the improv performance, use the following hints to guide your analysis: {hints}. Be faithful to the context and use the characters, places or actions mentioned.\n"
-                if language == "it":
-                    if hints.get("chi"):
-                        sys_msg += "- 'chi': The character that the performer is impersonating, and will be the protagonist of the story.\n"
-                    if hints.get("dove"):
-                        sys_msg += "- 'dove': Location where the story takes place.\n"
-                    if hints.get("cosa"):
-                        sys_msg += "- 'cosa': Event used as the starting point of the story.\n"
-                else: 
-                    if hints.get("who"):
-                        sys_msg += "- 'who': he character that the performer is impersonating, and will be the protagonist of the story.\n"
-                    if hints.get("where"):
-                        sys_msg += "- 'where': Location where the story takes place.\n"
-                    if hints.get("what"):
-                        sys_msg += "- 'what': Event used as the starting point of the story.\n"
+                if hints.get("who"):
+                    sys_msg += "- 'who': he character that the performer is impersonating, and will be the protagonist of the story.\n"
+                if hints.get("where"):
+                    sys_msg += "- 'where': Location where the story takes place.\n"
+                if hints.get("what"):
+                    sys_msg += (
+                        "- 'what': Event used as the starting point of the story.\n"
+                    )
 
         sys_msg += """
 4 - Using JSON format, output: title, description, emotion, action, keywords.
@@ -1447,7 +1431,7 @@ Example:
     "keywords": ["step back", "hesitation", "vulnerability", "inner conflict"]
 }
         """
-            
+
         messages = [
             {
                 "role": "system",
@@ -1465,7 +1449,8 @@ Example:
                         "type": "text",
                         "text": """
 Analyze the following improvisational performance with reference to the audio transcription: '%s'.
-"""                     % transcript, #TODO: try different examples
+"""
+                        % transcript,  # TODO: try different examples
                     },
                 ],
             },
@@ -1473,24 +1458,26 @@ Analyze the following improvisational performance with reference to the audio tr
                 "role": "user",
                 "content": [
                     "These are video frames in order.",
-                    *map(lambda frame: {"type": "image_url", "image_url": {
-                    "url": f'{frame}', "detail": "low"}},
-                    frames)  
+                    *map(
+                        lambda frame: {
+                            "type": "image_url",
+                            "image_url": {"url": f"{frame}", "detail": "low"},
+                        },
+                        frames,
+                    ),
                 ],
-            }
+            },
         ]
-        
+
         if logger:
             logger.debug(f"Messages: {sys_msg}")
-        data = self.send_gpt4_request(messages)
+        data = self.send_gpt_hq_request(messages)
         return self.__get_json_data(data)
-      
-        
-    def process_improv_ctx(self, end, frames, story, hints=[], transcript="Hello", language="en"): #TODO: move hints to user message?
+
+    def process_improv_ctx(self, end, frames, story, hints=[], transcript="Hello"):
         if logger:
             logger.debug(f"Transcript: {transcript}. Processing improv...")
 
-        
         sys_msg = """
 You are a performance choreographer specializing in improvisation. 
 Your task is to analyze and describe the key movements in the video, focusing on how the performer's movements interact with their spoken words or sounds in the audio.
@@ -1503,25 +1490,21 @@ Focus on what the person is doing/saying and how this performance continues or e
 """
         if len(hints) > 0:
             if end:
-                type_of_end = str(hints).split(':')[0].strip().replace("{", "")
-                hint = str(hints).split(':')[1].strip().replace("}", "")
+                type_of_end = str(hints).split(":")[0].strip().replace("{", "")
+                hint = str(hints).split(":")[1].strip().replace("}", "")
                 sys_msg += f"4 - As context for the improv performance, the scenario can be described as {type_of_end} and this is the scenario staged by the performer: {hint}\n"
-            else: 
+            else:
                 sys_msg += f"4 - As context for the improv performance, use the following hints to guide your analysis: {hints}\n"
-                if language == "it":
-                    if hints.get("chi"):
-                        sys_msg += "- 'chi': Character used by the performer as the protagonist.\n"
-                    if hints.get("dove"):
-                        sys_msg += "- 'dove': Location where the story takes place.\n"
-                    if hints.get("cosa"):
-                        sys_msg += "- 'cosa': Event used as the starting point of the story.\n"
-                else: 
-                    if hints.get("who"):
-                        sys_msg += "- 'who': Character used by the performer as the protagonist.\n"
-                    if hints.get("where"):
-                        sys_msg += "- 'where': Location where the story takes place.\n"
-                    if hints.get("what"):
-                        sys_msg += "- 'what': Event used as the starting point of the story.\n"
+                if hints.get("who"):
+                    sys_msg += (
+                        "- 'who': Character used by the performer as the protagonist.\n"
+                    )
+                if hints.get("where"):
+                    sys_msg += "- 'where': Location where the story takes place.\n"
+                if hints.get("what"):
+                    sys_msg += (
+                        "- 'what': Event used as the starting point of the story.\n"
+                    )
 
         sys_msg += """
 5 - Using JSON format, output: title, desctiption, emotion, action, keywords.
@@ -1553,7 +1536,8 @@ Example:
                         "text": """
 1 - Analyze the following improvisational performance with reference to the audio transcription: '%s'.
 2 - For additional context, here is the story told so far: '%s'.
-"""                     % (transcript, story), #TODO: try different examples
+"""
+                        % (transcript, story),  # TODO: try different examples
                     },
                 ],
             },
@@ -1561,21 +1545,26 @@ Example:
                 "role": "user",
                 "content": [
                     "These are video frames in order.",
-                    *map(lambda frame: {"type": "image_url", "image_url": {
-                    "url": f'{frame}', "detail": "low"}},
-                    frames)  
+                    *map(
+                        lambda frame: {
+                            "type": "image_url",
+                            "image_url": {"url": f"{frame}", "detail": "low"},
+                        },
+                        frames,
+                    ),
                 ],
-            }
+            },
         ]
-        
+
         if logger:
             logger.debug(f"Messages: {sys_msg}, story: {story}")
-        data = self.send_gpt4_request(messages)
-        return self.__get_json_data(data)    
-        
-    
-    def generate_part_improv(self, context, complexity): #TODO: change randomizer, complexity?
-         # Generate a story part based on the motion labeling result
+        data = self.send_gpt_hq_request(messages)
+        return self.__get_json_data(data)
+
+    def generate_part_improv(
+        self, context, complexity
+    ):  # TODO: change randomizer, complexity?
+        # Generate a story part based on the motion labeling result
         if logger:
             logger.debug(f"Context in generate_part_improv(): {context}")
         premise = context.get("premise")
@@ -1587,14 +1576,26 @@ Example:
         improv = context.get("improv").get("data")
         action = improv.get("action")
         desc = improv.get("description")
-        emotion = improv.get("emotion") # TODO: should we use it?
+        emotion = improv.get("emotion")  # TODO: should we use it?
         transcript = improv.get("transcript")
-        
-        ctx = {"premise": premise, "story": story, "action": action, "desc": desc, "emotion": emotion, "transcript": transcript, "who": who, "where": where, "objects": objects}
+
+        ctx = {
+            "premise": premise,
+            "story": story,
+            "action": action,
+            "desc": desc,
+            "emotion": emotion,
+            "transcript": transcript,
+            "who": who,
+            "where": where,
+            "objects": objects,
+        }
         if logger:
             logger.debug(f"Ctx in generate_part_improv(): {ctx}")
-            logger.debug(f"Keypoint in generate_part_improv(): {who}\n{where}\n{objects}")
-            
+            logger.debug(
+                f"Keypoint in generate_part_improv(): {who}\n{where}\n{objects}"
+            )
+
         length = random.choice([1, 1, 1, 2, 2, 3, 4])
         # settings = [
         #     "Something absurdly good happens to the main character.",
@@ -1606,7 +1607,7 @@ Example:
         #     "Twist something already known.",
         #     "End with a cliffhanger.",
         # ]
-        
+
         # # Randomly select a setting from the list
         # setting = random.choice(settings)
         # convergence = random.choice([setting, "Direct the story towards the premise."])
@@ -1692,11 +1693,10 @@ Example JSON object:
 
         # if logger:
         #     logger.debug(f"Chosen setting: {setting}")
-        data = self.send_gpt4_request(messages)
+        data = self.send_gpt_hq_request(messages)
         return self.__get_json_data(data)
 
-    
-    def generate_story_to_end(self, limit=500): #TODO: character limit ok?
+    def generate_story_to_end(self, limit=500):  # TODO: character limit ok?
         messages = [
             {
                 "role": "system",
@@ -1738,17 +1738,11 @@ Example JSON object:
                 ],
             },
         ]
-        data = self.send_gpt4_request(messages)
+        data = self.send_gpt_hq_request(messages)
         return self.__get_json_data(data)
-    
-    
-    def generate_end_hints(self, complexity, language="en", n=2): #TODO: complexity?
-        # Generate hints to end an improv story
-        # if logger:
-        #     logger.debug(f"Language: {language}")
-        language_map = {"en": "English", "it": "Italian"}
-        language_full = language_map.get(language, "English")  # Default to English if unsupported language is provided
 
+    def generate_end_hints(self, complexity, n=2):
+        # Generate hints to end an improv story
         messages = [
             {
                 "role": "system",
@@ -1756,13 +1750,13 @@ Example JSON object:
                     {
                         "type": "text",
                         "text": f"""
-You are a helpful assistant fluent in {language_full}. Help me generate some possible endings for a story.
+You are a helpful assistant fluent in English. Help me generate some possible endings for a story.
 1. Generate {n} elements, each include 4 possible endings to inspire how the story might conclude, using these categories:
     - happy: A joyful or fulfilling resolution.
     - sad: A melancholy or emotional conclusion.
     - absurd: A surreal or comically unexpected turn of events.
     - catastrophic: A disastrous or intense outcome.
-2. Use the language mentioned before ({language_full}).
+2. Use English.
 3. Return as a JSON object. 
     - No styling and all in ascii characters.
     - Use double quotes for keys and values.
@@ -1771,14 +1765,14 @@ Example JSON object:
 {{
     "list": [
        {{
-            "{'felice' if language == 'it' else 'happy'}": "{'Riscopre un tesoro nascosto che porta pace alla città.' if language == 'it' else 'He uncovers a hidden treasure that brings peace to the town.'}",
-            "{'triste' if language == 'it' else 'sad'}": "{'Scopre una vecchia lettera che rivela un tragico segreto di famiglia.' if language == 'it' else 'He finds an old letter revealing a tragic family secret.'}",
-            "{'assurdo' if language == 'it' else 'absurd'}": "{'La cantina porta a una discoteca dove i fantasmi organizzano una festa.' if language == 'it' else 'The basement leads to a disco where ghosts are hosting a dance party.'}",
-            "{'catastrofico' if language == 'it' else 'catastrophic'}": "{'Il passaggio crolla, intrappolandolo per sempre nella casa infestata.' if language == 'it' else 'The passage collapses, trapping him in the haunted house forever.'}"
+            "happy": "He uncovers a hidden treasure that brings peace to the town.",
+            "sad": "He finds an old letter revealing a tragic family secret.",
+            "absurd": "The basement leads to a disco where ghosts are hosting a dance party.",
+            "catastrophic": "The passage collapses, trapping him in the haunted house forever."
         }},
     ]
 }}
-"""
+""",
                     }
                 ],
             },
@@ -1786,9 +1780,8 @@ Example JSON object:
 
         # if logger:
         #     logger.debug(f"Messsages: {messages}")
-        data = self.send_gpt4_request(messages, temperature=1.2)
+        data = self.send_gpt_hq_request(messages, temperature=1.2)
         return self.__get_json_data(data)
-
 
     def terminate_story_improv(self, story, improv):
         messages = [
@@ -1823,10 +1816,10 @@ Example JSON object:
     }
 }
         """
-                                % (improv),
-                            }
-                        ],
-                    },
+                        % (improv),
+                    }
+                ],
+            },
             {
                 "role": "user",
                 "content": [
@@ -1837,11 +1830,12 @@ Example JSON object:
                 ],
             },
         ]
-        data = self.send_gpt4_request(messages, temperature=0.5) #TODO: change temperature?
+        data = self.send_gpt_hq_request(
+            messages, temperature=0.5
+        )  # TODO: change temperature?
         return self.__get_json_data(data)
 
-
-    def generate_questions(self, max_q=20): 
+    def generate_questions(self, max_q=20):
         messages = [
             {
                 "role": "system",
@@ -1887,7 +1881,7 @@ Example JSON object:
                 ],
             },
         ]
-        data = self.send_gpt4_request(messages)
+        data = self.send_gpt_hq_request(messages)
         return self.__get_json_data(data)
 
     # -- LLM Request Functions --
@@ -1902,7 +1896,7 @@ Example JSON object:
             payload = {
                 "model": self.vision,
                 "messages": request,
-                "max_tokens": 1024,
+                "max_tokens": 4096,
             }
             response = requests.post(
                 "https://api.openai.com/v1/chat/completions",
@@ -1913,9 +1907,7 @@ Example JSON object:
                 logger.debug(
                     f"Successfuly sent 'vision' LLM request with model={self.vision}"
                 )
-                logger.debug(
-                    f"Response = {response.json()}"
-                )
+                logger.debug(f"Response = {response.json()}")
 
             jresponse = response.json()
             return jresponse["choices"][0]["message"]["content"]
@@ -1924,8 +1916,7 @@ Example JSON object:
                 logger.error(str(e) + str(response))
             raise e
 
-
-    def send_gpt4_request(
+    def send_gpt_hq_request(
         self, request, is_json=True, temperature=1.0, presence_penalty=0.0
     ):
         try:
@@ -1933,7 +1924,7 @@ Example JSON object:
                 model=self.gpt4,
                 messages=request,
                 response_format={"type": "json_object"} if is_json else None,
-                max_tokens=1024,
+                max_tokens=4096,
                 temperature=temperature,
                 presence_penalty=presence_penalty,
             )
@@ -1957,7 +1948,7 @@ Example JSON object:
                     model=self.gpt4mini,
                     messages=request,
                     response_format={"type": "json_object"} if is_json else None,
-                    max_tokens=1024,
+                    max_tokens=4096,
                     temperature=temperature,
                     presence_penalty=presence_penalty,
                 )
@@ -1974,22 +1965,21 @@ Example JSON object:
                     logger.error(e)
                 raise e
 
-
-    def send_gpt3_request(
+    def send_gpt_lq_request(
         self, request, is_json=True, temperature=1.0, presence_penalty=0.0
     ):
         try:
             response = self.llm.chat.completions.create(
-                model=self.gpt3,
+                model=self.gpt4mini,
                 messages=request,
                 response_format={"type": "json_object"} if is_json else None,
-                max_tokens=1024,
+                max_tokens=4096,
                 temperature=temperature,
                 presence_penalty=presence_penalty,
             )
             if logger:
                 logger.debug(
-                    f"Successfuly sent 'fast chat' LLM request with model={self.gpt3}"
+                    f"Successfuly sent 'fast chat' LLM request with model={self.gpt4mini}"
                 )
 
             jresponse = json.loads(response.model_dump_json())
@@ -2000,15 +1990,12 @@ Example JSON object:
                 logger.error(e)
             raise e
 
-
     def send_image_request(self, request):
         try:
             response = self.llm.images.generate(
                 model=self.image_gen,
                 prompt=request,
                 size=IMAGE_GEN_RESOLUTION,
-                quality="standard",
-                style="natural",
                 n=1,
             )
             if logger:
@@ -2022,7 +2009,6 @@ Example JSON object:
             if logger:
                 logger.error(e)
             raise e
-
 
     def send_tts_request(self, text, os="undetermined"):
         # Based on this answer: https://github.com/openai/openai-python/issues/864#issuecomment-1872681672
@@ -2046,7 +2032,6 @@ Example JSON object:
                     )
                 for chunk in response.iter_content(chunk_size=4096):
                     yield chunk
-
 
     def send_stt_request(self, input, translate=False):
         # TODO: Maybe move to file-in-memory approach without saving/opening the file

@@ -7,7 +7,7 @@ MODEL_IMAGE_GEN = "dall-e-2"
 MODEL_TTS = "tts-1"
 MODEL_STT = "whisper-1"
 # NOTE: If using dall-e-3, change the resolution to "1024x1024"
-IMAGE_GEN_RESOLUTION = "256x256"
+IMAGE_GEN_RESOLUTION = "512x512"
 
 # App settings
 APP_IMAGE_EXT = ["jpg", "jpeg", "png"]
