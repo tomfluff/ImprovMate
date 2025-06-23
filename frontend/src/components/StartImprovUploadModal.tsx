@@ -20,7 +20,6 @@ import { createCallLanguage } from "../utils/llmIntegration";
 import HintsModal from "./HintsModal";
 import useMic from "../hooks/useMic";
 import { TPremise } from "../types/Premise";
-import { usePreferencesStore } from "../stores/preferencesStore";
 
 type Props = {
   display: boolean;

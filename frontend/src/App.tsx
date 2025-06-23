@@ -3,7 +3,6 @@ import {
   ActionIcon,
   AppShell,
   Box,
-  Burger,
   Button,
   Flex,
   FloatingIndicator,
@@ -236,8 +235,8 @@ function App() {
               leftSection={<FaStar />}
             >
               drgrico
-            </Button>
-            {" "}and{" "}
+            </Button>{" "}
+            and{" "}
             <Button
               component={Link}
               to="https://github.com/tomfluff"

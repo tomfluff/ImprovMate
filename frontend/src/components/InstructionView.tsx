@@ -42,10 +42,8 @@ const InstructionView = ({
   const character = useAdventureStore.use.character();
   const premise = useAdventureStore.use.premise();
 
-  const [captureModal, { open: openCapture, close: closeCapture }] =
-    useDisclosure();
-  const [premiseModal, { open: openPremise, close: closePremise }] =
-    useDisclosure();
+  const [captureModal, { close: closeCapture }] = useDisclosure();
+  const [premiseModal, { close: closePremise }] = useDisclosure();
   const [improvModal, { open: openImprov, close: closeImprov }] =
     useDisclosure();
 
