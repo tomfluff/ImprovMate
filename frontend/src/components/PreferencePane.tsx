@@ -79,7 +79,7 @@ const PreferencePane = () => {
         />
 
         <Divider />
-        <Box>
+        {/* <Box>
           <Text size="sm">Story Complexity</Text>
           <Slider
             marks={storyComplexityOptions}
@@ -95,7 +95,7 @@ const PreferencePane = () => {
             mb="md"
             mt="xs"
           />
-        </Box>
+        </Box> */}
       </Stack>
     </Card>
   );

@@ -13,7 +13,7 @@ import {
   Tooltip,
   rem,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { Link } from "react-router-dom";
 import { FaQuestionCircle, FaStar } from "react-icons/fa";
 import StoryView from "./components/StoryView";
@@ -39,6 +39,7 @@ function App() {
   const [opened, { toggle: toggleNavbar }] = useDisclosure(false);
   const sessionId = useSessionStore.use.id();
   const isSession = useMemo(() => sessionId !== null, [sessionId]);
+  const isMobile = useMediaQuery("(max-width: 50em)");
 
   const reset = () => {
     clearStore();
@@ -95,9 +96,9 @@ function App() {
               </ActionIcon>
             </Group>
           </Tooltip>
-          <Text size="md" fw={500} fs="italic" ff="heading">
+          {!isMobile && (<Text size="md" fw={500} fs="italic" ff="heading">
             ImprovMate.
-          </Text>
+          </Text>)}
           <Group gap="sm">
             <Button disabled={!isSession} onClick={reset} color="orange">
               Reset
