@@ -1,12 +1,12 @@
 # ImprovMate
 
-AI-assisted imporvisation practice tool for actors. Based on the [MyStoryKnight](https://tomfluff.github.io/MyStoryKnight/) project. 
+AI-assisted improvisation practice tool for actors. Based on the [MyStoryKnight](https://tomfluff.github.io/MyStoryKnight/) project. 
 
 ## Description
 
 ImprovMate is an AI-powered improvisation practice tool designed to help actors refine their skills in a dynamic and engaging way. By leveraging advancements in artificial intelligence, particularly large language models (LLMs), ImprovMate provides a seamless and intuitive platform for individual improv training, addressing the limitations of traditional group-based methods.
 
-The system uses multimodal input, such as an actor’s audiovisual performance, to generate characters, objects, and scenarios that mimic the unpredictability of live performances. It tracks narrative elements throughout a session, ensuring coherence while reducing cognitive load. ImprovMate also incorporates structured exercises inspired by traditional improv training techniques, fostering creativity and supporting actors of all experience levels.
+The system uses multimodal input, such as an actor's audiovisual performance, to generate characters, objects, and scenarios that mimic the unpredictability of live performances. It tracks narrative elements throughout a session, ensuring coherence while reducing cognitive load. ImprovMate also incorporates structured exercises inspired by traditional improv training techniques, fostering creativity and supporting actors of all experience levels.
 
 Key features of ImprovMate include:
 
