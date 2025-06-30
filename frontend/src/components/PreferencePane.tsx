@@ -1,19 +1,12 @@
 import { useState } from "react";
-import {
-  Card,
-  Text,
-  Switch,
-  Slider,
-  Stack,
-  Select,
-  Box,
-  Divider,
-} from "@mantine/core";
+import { Card, Switch, Stack, Select, Divider } from "@mantine/core";
 import {
   setPreferences,
   usePreferencesStore,
 } from "../stores/preferencesStore";
-import { complexityOptions, languageOptions } from "../utils/llmIntegration";
+import {
+  /*complexityOptions,*/ languageOptions,
+} from "../utils/llmIntegration";
 import { useOs } from "@mantine/hooks";
 
 const PreferencePane = () => {
@@ -22,12 +15,12 @@ const PreferencePane = () => {
     label: d.label,
     value: d.value,
   }));
-  const storyComplexityOptions = complexityOptions.map((d) => ({
+  /*const storyComplexityOptions = complexityOptions.map((d) => ({
     label: d.label,
     value: d.value,
   }));
   const maxComplexity = Math.max(...complexityOptions.map((d) => d.value));
-  const minComplexity = Math.min(...complexityOptions.map((d) => d.value));
+  const minComplexity = Math.min(...complexityOptions.map((d) => d.value));*/
 
   const [language, setLanguage] = useState(
     usePreferencesStore.getState().language
@@ -38,9 +31,9 @@ const PreferencePane = () => {
   const [includeStoryImages, setIncludeStoryImages] = useState(
     usePreferencesStore.getState().includeStoryImages
   );
-  const [storyComplexity, setStoryComplexity] = useState(
+  /*const [storyComplexity, setStoryComplexity] = useState(
     usePreferencesStore.getState().storyComplexity
-  );
+  );*/
 
   return (
     <Card shadow="sm">
