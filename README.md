@@ -1,6 +1,6 @@
 # ImprovMate
 
-AI-assisted improvisation practice tool for actors. Based on the [MyStoryKnight](https://tomfluff.github.io/MyStoryKnight/) project. 
+AI-assisted improvisation practice tool for actors. Based on the [MyStoryKnight](https://tomfluff.github.io/MyStoryKnight/) project. See the [ImrovMate](https://improvmate.github.io/) project page for more details
 
 ## Description
 
@@ -113,5 +113,20 @@ gcloud config set project PROJECT_ID
 npm run predeploy
 npm run deploy
 ```
-1. This will deploy to the `gh-pages` branch of the repository.
+4. This will deploy to the `gh-pages` branch of the repository.
 
+---
+
+```bibtex
+@inproceedings{drago2025improvmate,
+  author       = {Riccardo Drago and Yotam Sechayk and Mustafa Doga Dogan and Andrea Sanna and Takeo Igarashi},
+  title        = {{ImprovMate: Multimodal AI Assistant for Improv Actor Training}},
+  booktitle    = {Companion Publication of the 2025 ACM Designing Interactive Systems Conference (DIS ’25 Companion)},
+  year         = {2025},
+  publisher    = {Association for Computing Machinery},
+  address      = {New York, NY, USA},
+  doi          = {10.25145/3715668.3736363},
+  isbn         = {979-8-4007-1486-3},
+  url          = {https://doi.org/10.25145/3715668.3736363}
+}
+```
